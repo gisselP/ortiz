@@ -24,3 +24,10 @@ Abre http://localhost:3000.
 1. Login y panel `/admin` con Supabase.
 2. Subida de videos desde el panel (Cloudflare R2).
 3. Reemplazar textos, fotos y contacto por los reales.
+
+## Decisiones de diseño que no se tocan
+
+- Tipografía: Bricolage Grotesque (títulos y números) + Instrument Sans (texto). Gissel y Sofía quieren mantenerla.
+- Verde oliva como acento (#5C6B3A) sobre fondo crema (#F8F6F1).
+- Videos verticales primero, sin carrusel ni marquee.
+- Cualquier mejora de diseño (skills, Playwright) se propone antes de cambiar el código y respeta esto.
