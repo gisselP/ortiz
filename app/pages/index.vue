@@ -43,7 +43,6 @@ onMounted(() => {
         <div class="role">{{ site.role }}</div>
       </div>
       <nav class="nav" aria-label="Secciones">
-        <a href="#sobre-mi">Quién soy</a>
         <a href="#redes">TikTok / Reels / Shorts</a>
         <a href="#horizontales">Videos Horizontales</a>
         <a href="#contenido">Creación de Contenido</a>
@@ -62,14 +61,6 @@ onMounted(() => {
           </a>
         </div>
       </section>
-
-      <div class="marquee" aria-hidden="true">
-        <div class="track">
-          <span v-for="n in 2" :key="n" class="set">
-            <span v-for="r in site.rubros" :key="r + n"><i /> {{ r }}</span>
-          </span>
-        </div>
-      </div>
 
       <section id="sobre-mi" class="sec wrap" data-reveal>
         <div class="label">

@@ -40,7 +40,6 @@ export const site = {
     'Soy Sofía, comunicadora audiovisual en Lima. Grabo, edito y escribo guiones para negocios que quieren contar mejor lo que hacen.',
     'Empecé en agencias aprendiendo el oficio y hoy trabajo por cuenta propia, eligiendo mis proyectos.'
   ],
-  rubros: ['Veterinaria', 'Inmobiliaria', 'Pastelería', 'Colegio', 'Joyería', 'Gastronomía', 'Heladería', 'Universidad'],
   tools: 'Premiere, After Effects, Photoshop, Illustrator, Audition, InDesign y Lightroom.',
   stats: [
     { value: 3, suffix: '+', label: 'Años de experiencia' },

@@ -171,20 +171,10 @@ h1, h2, h3 { text-wrap: balance; }
 .odo .strip span { display: block; height: 1em; line-height: 1; }
 .stat b i { line-height: 1; }
 
-/* cinta de rubros */
-.marquee { overflow: hidden; background: var(--accent-soft); color: var(--accent-deep); border-block: 1px solid var(--accent); }
-.marquee .track { display: flex; width: max-content; animation: slide 38s linear infinite; }
-.marquee:hover .track { animation-play-state: paused; }
-.marquee .set { display: flex; flex: 0 0 auto; }
-.marquee .set span { display: inline-flex; align-items: center; gap: 14px; padding: 14px 28px 14px 0; font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -.01em; white-space: nowrap; }
-.marquee .set i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
-@keyframes slide { to { transform: translateX(-50%); } }
-
 /* aparecer al llegar */
 .rv { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
 .rv.in { opacity: 1; transform: none; }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee .track { animation: none; }
   .rv { opacity: 1; transform: none; }
 }
