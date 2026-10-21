@@ -7,3 +7,5 @@ dist
 .env.*
 !.env.example
 .DS_Store
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
