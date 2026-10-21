@@ -42,9 +42,9 @@ h1, h2, h3 { text-wrap: balance; }
 /* tiles */
 .card { display: block; }
 .card:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 14px; }
-.tile { transition: box-shadow .15s; position: relative; display: block; max-width: 100%; border-radius: 14px; overflow: hidden; color: #F8F6F1; }
+.tile { transition: box-shadow .15s, transform .2s; position: relative; display: block; max-width: 100%; border-radius: 14px; overflow: hidden; color: #F8F6F1; }
 .tile video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-.card:hover .tile, .card:focus-visible .tile { box-shadow: 0 0 0 3px var(--accent); }
+.card:hover .tile, .card:focus-visible .tile { box-shadow: 0 0 0 3px var(--accent); transform: translateY(-4px); }
 .tile .play { position: absolute; left: 12px; top: 12px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 8px; border-radius: 999px; background: var(--accent); color: #F8F6F1; font-size: 13px; font-weight: 600; opacity: 0; transform: translateY(-4px); transition: opacity .15s, transform .15s; }
 .card:hover .play, .card:focus-visible .play { opacity: 1; transform: none; }
 .tile .bar { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--accent-light); }
@@ -98,7 +98,7 @@ h1, h2, h3 { text-wrap: balance; }
 .stats { display: flex; flex-wrap: wrap; background: var(--accent); color: #F8F6F1; }
 .stat { flex: 1 1 280px; padding: 56px var(--gutter-l); }
 .stat + .stat { border-left: 1px solid rgba(248,246,241,.35); }
-.stat b { display: block; font-family: var(--display); font-weight: 800; font-size: clamp(72px, 9vw, 128px); line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.stat b { display: flex; align-items: flex-start; font-family: var(--display); font-weight: 800; font-size: clamp(72px, 9vw, 128px); line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
 .stat b i { font-style: normal; color: var(--accent-light); }
 .stat span { display: block; margin-top: 10px; font-size: 16px; color: #E9EDD9; }
 @media (max-width: 700px) { .stat + .stat { border-left: 0; border-top: 1px solid rgba(248,246,241,.35); } }
@@ -161,4 +161,30 @@ h1, h2, h3 { text-wrap: balance; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   * { transition: none !important; }
+}
+
+/* números que giran */
+.odo { display: inline-flex; height: 1em; overflow: hidden; }
+.odo .col { display: block; height: 1em; overflow: hidden; }
+.odo .strip { display: block; }
+.odo.go .strip { transition: transform 1.9s cubic-bezier(.16, .84, .3, 1) var(--d, 0ms); }
+.odo .strip span { display: block; height: 1em; line-height: 1; }
+.stat b i { line-height: 1; }
+
+/* cinta de rubros */
+.marquee { overflow: hidden; background: var(--accent-soft); color: var(--accent-deep); border-block: 1px solid var(--accent); }
+.marquee .track { display: flex; width: max-content; animation: slide 38s linear infinite; }
+.marquee:hover .track { animation-play-state: paused; }
+.marquee .set { display: flex; flex: 0 0 auto; }
+.marquee .set span { display: inline-flex; align-items: center; gap: 14px; padding: 14px 28px 14px 0; font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: -.01em; white-space: nowrap; }
+.marquee .set i { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+@keyframes slide { to { transform: translateX(-50%); } }
+
+/* aparecer al llegar */
+.rv { opacity: 0; transform: translateY(28px); transition: opacity .7s ease, transform .7s ease; }
+.rv.in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee .track { animation: none; }
+  .rv { opacity: 1; transform: none; }
 }

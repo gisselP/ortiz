@@ -10,44 +10,28 @@ useSeoMeta({
   twitterCard: 'summary_large_image'
 })
 
-// Números con conteo al llegar a la sección. Se renderizan completos y solo se animan en el navegador.
-const shown = ref(site.stats.map((s) => s.value))
-const statsEl = ref<HTMLElement | null>(null)
-let io: IntersectionObserver | null = null
-let timer: ReturnType<typeof setInterval> | undefined
-let fallback: ReturnType<typeof setTimeout> | undefined
-
-function run() {
-  if (timer) return
-  const start = Date.now()
-  timer = setInterval(() => {
-    const t = Math.min(1, (Date.now() - start) / 1600)
-    const e = 1 - Math.pow(1 - t, 3)
-    shown.value = site.stats.map((s) => (t >= 1 ? s.value : Math.round(s.value * e)))
-    if (t >= 1) clearInterval(timer)
-  }, 40)
-}
-
+// Las secciones de abajo aparecen suavemente al llegar. Lo que ya se ve al cargar no se esconde.
 onMounted(() => {
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  if (reduce || !statsEl.value || !('IntersectionObserver' in window)) return
-  shown.value = site.stats.map(() => 0)
-  io = new IntersectionObserver(
-    (entries) => {
-      if (entries.some((e) => e.isIntersecting)) {
-        run()
-        io?.disconnect()
-      }
-    },
-    { threshold: 0.3 }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return
+  const els = Array.from(document.querySelectorAll<HTMLElement>('[data-reveal]')).filter(
+    (el) => el.getBoundingClientRect().top > window.innerHeight
   )
-  io.observe(statsEl.value)
-  fallback = setTimeout(run, 6000)
-})
-onBeforeUnmount(() => {
-  io?.disconnect()
-  clearInterval(timer)
-  clearTimeout(fallback)
+  const io = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in')
+          io.unobserve(e.target)
+        }
+      })
+    },
+    { threshold: 0.12 }
+  )
+  els.forEach((el) => {
+    el.classList.add('rv')
+    io.observe(el)
+  })
+  setTimeout(() => els.forEach((el) => el.classList.add('in')), 8000)
 })
 </script>
 
@@ -79,7 +63,15 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section id="sobre-mi" class="sec wrap">
+      <div class="marquee" aria-hidden="true">
+        <div class="track">
+          <span v-for="n in 2" :key="n" class="set">
+            <span v-for="r in site.rubros" :key="r + n"><i /> {{ r }}</span>
+          </span>
+        </div>
+      </div>
+
+      <section id="sobre-mi" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="user" /></span>
           <h2>Quién soy</h2>
@@ -97,7 +89,7 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section id="redes" class="sec wrap">
+      <section id="redes" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="phone" /></span>
           <h2>TikTok / Reels / Shorts</h2>
@@ -108,7 +100,7 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section id="horizontales" class="sec wrap">
+      <section id="horizontales" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="monitor" /></span>
           <h2>Videos Horizontales</h2>
@@ -119,7 +111,7 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section id="contenido" class="sec wrap">
+      <section id="contenido" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="trending" /></span>
           <h2>Creación de Contenido</h2>
@@ -141,14 +133,14 @@ onBeforeUnmount(() => {
         </div>
       </section>
 
-      <section id="stats" ref="statsEl" class="stats" aria-label="Números">
+      <section id="stats" class="stats" aria-label="Números">
         <div v-for="(s, i) in site.stats" :key="s.label" class="stat">
-          <b>{{ shown[i] }}<i>{{ s.suffix }}</i></b>
+          <b :aria-label="`${s.value}${s.suffix}`"><Odometer :value="s.value" :delay="i * 250" /><i aria-hidden="true">{{ s.suffix }}</i></b>
           <span>{{ s.label }}</span>
         </div>
       </section>
 
-      <section id="contacto" class="sec wrap" style="border-top: 0; padding-top: 88px; padding-bottom: 0">
+      <section id="contacto" class="sec wrap" data-reveal style="border-top: 0; padding-top: 88px; padding-bottom: 0">
         <div class="label">
           <span class="ic"><Icon name="chat" /></span>
           <h2>Contacto</h2>
