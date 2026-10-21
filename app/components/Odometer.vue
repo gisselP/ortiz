@@ -13,9 +13,10 @@ let fallback: ReturnType<typeof setTimeout> | undefined
 
 function start() {
   if (go.value) return
-  go.value = true
   io?.disconnect()
   clearTimeout(fallback)
+  // dos cuadros de espera para que el navegador alcance a pintar los dígitos en 0 antes de girar
+  requestAnimationFrame(() => requestAnimationFrame(() => (go.value = true)))
 }
 
 onMounted(() => {

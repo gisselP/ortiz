@@ -99,7 +99,7 @@ h1, h2, h3 { text-wrap: balance; }
 .stat + .stat { border-left: 1px solid rgba(248,246,241,.35); }
 .stat b { display: flex; align-items: flex-start; font-family: var(--display); font-weight: 800; font-size: clamp(72px, 9vw, 128px); line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
 .stat b i { font-style: normal; color: var(--accent-light); }
-.stat span { display: block; margin-top: 10px; font-size: 16px; color: #E9EDD9; }
+.stat > span { display: block; margin-top: 10px; font-size: 16px; color: #E9EDD9; }
 @media (max-width: 700px) { .stat + .stat { border-left: 0; border-top: 1px solid rgba(248,246,241,.35); } }
 
 /* contacto */
