@@ -3,6 +3,8 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-10-01',
   devtools: { enabled: false },
   css: ['~/assets/css/main.css'],
+  // desplazamiento suave solo al tocar enlaces del menú, no al recargar
+  router: { options: { scrollBehaviorType: 'smooth' } },
   app: {
     head: {
       htmlAttrs: { lang: 'es' },

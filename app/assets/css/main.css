@@ -15,7 +15,6 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--bg);
@@ -159,7 +158,6 @@ h1, h2, h3 { text-wrap: balance; }
 .pn { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
 
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
   * { transition: none !important; }
 }
 
