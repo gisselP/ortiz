@@ -17,6 +17,8 @@ const paths: Record<string, string> = {
   briefcase: 'M3 8h18v12H3zM9 8V5h6v3M3 13h18',
   image: 'M4 4h16v16H4zM4 16l5-5 4 4 3-3 4 4M9 9.5h.01',
   arrow: 'M7 17L17 7M8 7h9v9',
+  mail: 'M3 5h18v14H3zM3 7l9 7 9-7',
+  flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
   check: 'M5 12l5 5 9-10'
 }
 const d = computed(() => paths[props.name] || '')

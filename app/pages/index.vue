@@ -1,14 +1,22 @@
 <script setup lang="ts">
-const { best, redes, horizontal, contenido } = useWorks()
+const { reel, hero, redes, horizontal, contenido } = useWorks()
 
 useSeoMeta({
-  title: `${site.name} | ${site.role}`,
+  title: `${site.name} | Comunicadora audiovisual`,
   description: site.description,
-  ogTitle: `${site.name} | ${site.role}`,
+  ogTitle: `${site.name} | Comunicadora audiovisual`,
   ogDescription: site.description,
   ogType: 'website',
   twitterCard: 'summary_large_image'
 })
+
+const showFab = ref(false)
+function onScroll() { showFab.value = window.scrollY > 520 }
+onMounted(() => {
+  onScroll()
+  window.addEventListener('scroll', onScroll, { passive: true })
+})
+onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 
 // Las secciones de abajo aparecen suavemente al llegar. Lo que ya se ve al cargar no se esconde.
 onMounted(() => {
@@ -37,28 +45,129 @@ onMounted(() => {
 
 <template>
   <div>
-    <header class="top wrap">
-      <div>
-        <h1>{{ site.name }}</h1>
-        <div class="role">{{ site.role }}</div>
-      </div>
+    <header class="topbar wrap">
+      <span class="brand">{{ site.name }}</span>
       <nav class="nav" aria-label="Secciones">
         <a href="#redes">TikTok / Reels / Shorts</a>
+        <a href="#casos">Creación de Contenido</a>
+        <a href="#servicios">Qué hago</a>
         <a href="#horizontales">Videos Horizontales</a>
-        <a href="#contenido">Creación de Contenido</a>
         <a href="#contacto">Contacto</a>
       </nav>
+      <a class="btn sm" :href="site.whatsapp"><Icon name="chat" :size="18" />Escríbeme</a>
     </header>
 
     <main>
-      <section class="wrap" style="padding-top: 8px; padding-bottom: 88px" aria-label="Mejores videos">
-        <div class="g4">
-          <WorkCard v-for="w in best" :key="w.id" :work="w" />
-          <a class="more" href="#contacto" aria-label="Más trabajos en Behance">
-            <small>Behance</small>
-            <Icon class="ar" name="arrow" :size="28" />
-            <strong>Más trabajos</strong>
-          </a>
+      <section class="hero wrap">
+        <div class="hero-txt">
+          <span class="avail"><i />{{ site.availability }}</span>
+          <h1>{{ site.name }}</h1>
+          <div class="role">{{ site.role }}</div>
+          <p class="lead">{{ site.lead }}</p>
+          <div class="cta">
+            <a class="btn" :href="site.whatsapp"><Icon name="chat" />Escríbeme por WhatsApp</a>
+            <NuxtLink class="btn ghost" to="/trabajo/reel">Ver mi reel</NuxtLink>
+          </div>
+        </div>
+        <div class="stair">
+          <WorkCard :work="reel" featured :caption="false" />
+          <WorkCard v-for="w in hero" :key="w.id" :work="w" />
+        </div>
+      </section>
+
+      <section id="stats" class="stats" aria-label="Números">
+        <div v-for="(s, i) in site.stats" :key="s.label" class="stat">
+          <b :aria-label="`${s.value}${s.suffix}`"><Odometer :value="s.value" :delay="i * 250" /><i aria-hidden="true">{{ s.suffix }}</i></b>
+          <span class="l">{{ s.label }}</span>
+          <a class="src" :href="s.href">{{ s.src }}</a>
+        </div>
+      </section>
+
+      <section id="redes" class="sec first wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="phone" /></span>
+          <h2>TikTok / Reels / Shorts</h2>
+          <p>Videos para redes.</p>
+        </div>
+        <div class="body g4">
+          <WorkCard v-for="w in redes" :key="w.id" :work="w" />
+        </div>
+      </section>
+
+      <section id="casos" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="trending" /></span>
+          <h2>Creación de Contenido</h2>
+          <p>Redes manejadas desde cero, con el resultado a la vista.</p>
+        </div>
+        <div class="body">
+          <div v-for="w in contenido" :key="w.id" class="case">
+            <div class="thumb"><WorkCard :work="w" :caption="false" /></div>
+            <div class="main">
+              <span class="cr">{{ w.rubro }}</span>
+              <h3>{{ w.client }}</h3>
+              <div class="step"><span class="ic sm"><Icon name="flag" :size="18" /></span><div><b>El problema</b><span class="t">{{ w.problem }}</span></div></div>
+              <div class="step"><span class="ic sm"><Icon name="camera" :size="18" /></span><div><b>Lo que hice</b><span class="t">{{ w.did }}</span></div></div>
+              <div class="step"><span class="ic sm"><Icon name="trending" :size="18" /></span><div><b>El resultado</b><span class="t">{{ w.result }}</span></div></div>
+              <div class="mets">
+                <div v-for="m in w.metrics" :key="m.label"><b>{{ m.value }}</b><span>{{ m.label }}</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="servicios" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="scissors" /></span>
+          <h2>Qué hago</h2>
+          <p>Para que sepas qué pedirme y cuánto tarda.</p>
+        </div>
+        <div class="body">
+          <div v-for="s in site.services" :key="s.name" class="svc">
+            <span class="n">{{ s.name }}</span>
+            <span class="d">{{ s.text }}</span>
+            <span class="p">{{ s.eta }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="proceso" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="flag" /></span>
+          <h2>Cómo trabajamos</h2>
+          <p>Tres pasos, sin sorpresas.</p>
+        </div>
+        <div class="body g3">
+          <div v-for="p in site.steps" :key="p.n" class="pstep">
+            <span class="num">{{ p.n }}</span>
+            <h3>{{ p.title }}</h3>
+            <p>{{ p.text }}</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="clientes" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="heart" /></span>
+          <h2>Lo que dicen mis clientes</h2>
+        </div>
+        <div class="body g2">
+          <figure v-for="(q, i) in site.quotes" :key="i" class="quote">
+            <blockquote>{{ q.text }}</blockquote>
+            <figcaption><b>{{ q.who }}</b><span class="cr">{{ q.rubro }}</span></figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section id="horizontales" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="monitor" /></span>
+          <h2>Videos Horizontales</h2>
+          <p>Proyectos de la universidad.</p>
+        </div>
+        <div class="body g2">
+          <WorkCard v-for="w in horizontal" :key="w.id" :work="w" ratio="16/9" />
         </div>
       </section>
 
@@ -70,8 +179,8 @@ onMounted(() => {
         <div class="body about">
           <div class="photo">[Foto de Sofía]</div>
           <div class="txt">
-            <p class="lead">{{ site.bio[0] }}</p>
-            <p class="more-txt">{{ site.bio[1] }}</p>
+            <p class="lead2">{{ site.bio }}</p>
+            <p class="more-txt">{{ site.bioMore }}</p>
             <div class="tools">
               <small>Herramientas</small>
               {{ site.tools }}
@@ -80,71 +189,24 @@ onMounted(() => {
         </div>
       </section>
 
-      <section id="redes" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="phone" /></span>
-          <h2>TikTok / Reels / Shorts</h2>
-          <p>Videos para redes.</p>
-        </div>
-        <div class="body g4">
-          <WorkCard v-for="w in redes" :key="w.id" :work="w" />
-        </div>
-      </section>
-
-      <section id="horizontales" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="monitor" /></span>
-          <h2>Videos Horizontales</h2>
-          <p>Institucional y documental.</p>
-        </div>
-        <div class="body g2">
-          <WorkCard v-for="w in horizontal" :key="w.id" :work="w" ratio="16/9" />
-        </div>
-      </section>
-
-      <section id="contenido" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="trending" /></span>
-          <h2>Creación de Contenido</h2>
-          <p>Gestión completa de redes, desde cero.</p>
-        </div>
-        <div class="body">
-          <div v-for="w in contenido" :key="w.id" class="proj">
-            <div class="thumb"><WorkCard :work="w" :caption="false" /></div>
-            <div class="info">
-              <h3>{{ w.client }}</h3>
-              <p>Redes manejadas desde cero. Grabación, guiones, manejo de redes y edición. [Qué se logró, en una frase]</p>
-              <div class="metrics">
-                <div class="m"><span class="ic"><Icon name="heart" :size="18" /></span><b>[000]</b><span>Interacciones</span></div>
-                <div class="m"><span class="ic"><Icon name="trending" :size="18" /></span><b>[000]</b><span>Crecimiento</span></div>
-                <div class="m"><span class="ic"><Icon name="clock" :size="18" /></span><b>[000]</b><span>Tiempo</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="stats" class="stats" aria-label="Números">
-        <div v-for="(s, i) in site.stats" :key="s.label" class="stat">
-          <b :aria-label="`${s.value}${s.suffix}`"><Odometer :value="s.value" :delay="i * 250" /><i aria-hidden="true">{{ s.suffix }}</i></b>
-          <span>{{ s.label }}</span>
-        </div>
-      </section>
-
-      <section id="contacto" class="sec wrap" data-reveal style="border-top: 0; padding-top: 88px; padding-bottom: 0">
+      <section id="contacto" class="sec wrap" data-reveal style="padding-bottom: 0">
         <div class="label">
           <span class="ic"><Icon name="chat" /></span>
           <h2>Contacto</h2>
+          <p>Respondo en [tiempo, por ejemplo menos de 24 horas].</p>
         </div>
-        <div class="body line">
-          <a v-for="c in site.contacts" :key="c.label" href="#contacto">
-            <span class="ic"><Icon :name="c.icon" /></span>
-            <span class="tx">
-              <small>{{ c.label }}</small>
-              <span class="val">{{ c.text }}</span>
-            </span>
-            <Icon name="arrow" :size="20" />
-          </a>
+        <div class="body">
+          <a class="btn big-cta" :href="site.whatsapp"><Icon name="chat" />Escríbeme por WhatsApp</a>
+          <div class="line">
+            <a v-for="c in site.contacts" :key="c.label" href="#contacto">
+              <span class="ic"><Icon :name="c.icon" /></span>
+              <span class="tx">
+                <small>{{ c.label }}</small>
+                <span class="val">{{ c.text }}</span>
+              </span>
+              <Icon name="arrow" :size="20" />
+            </a>
+          </div>
         </div>
         <div class="foot" style="flex: 1 1 100%">
           <span>© [Año] {{ site.name }}</span>
@@ -153,6 +215,6 @@ onMounted(() => {
       </section>
     </main>
 
-    <a class="fab" href="#contacto"><Icon name="chat" :size="20" />Escríbeme</a>
+    <a class="fab" :class="{ show: showFab }" :href="site.whatsapp"><Icon name="chat" :size="20" />Escríbeme</a>
   </div>
 </template>

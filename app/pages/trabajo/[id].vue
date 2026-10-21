@@ -7,6 +7,12 @@ const work = computed(() => all[idx.value])
 if (!work.value) {
   throw createError({ statusCode: 404, statusMessage: 'No encontré ese video', fatal: true })
 }
+const defaultMetrics = [
+  { value: '[000]', label: 'Interacciones' },
+  { value: '[000]', label: 'Crecimiento' },
+  { value: '[000]', label: 'Tiempo' }
+]
+const more = computed(() => all.filter((w) => w.id !== work.value!.id && w.section !== 'horizontal').slice(0, 6))
 const prev = computed(() => all[(idx.value - 1 + all.length) % all.length]!)
 const next = computed(() => all[(idx.value + 1) % all.length]!)
 
@@ -58,7 +64,8 @@ onMounted(() => {
 
 <template>
   <div v-if="work" class="vp wrap">
-    <div style="display: flex; justify-content: flex-end">
+    <div class="vtop">
+      <NuxtLink class="brand" to="/">{{ site.name }}</NuxtLink>
       <NuxtLink class="btn ghost sm" to="/">Cerrar ✕</NuxtLink>
     </div>
 
@@ -100,20 +107,32 @@ onMounted(() => {
       </div>
 
       <div class="vinfo">
-        <div class="r">{{ work.rubro }}</div>
+        <span class="chip">{{ work.rubro }}</span>
         <h1>{{ work.client }}</h1>
-        <p>[Qué necesitaba el cliente y cómo lo resolviste, en dos o tres líneas.]</p>
-        <div class="did">
-          <small>Lo que hice</small>
-          <div><span class="ic"><Icon name="pen" :size="18" /></span>Guion</div>
-          <div><span class="ic"><Icon name="camera" :size="18" /></span>Grabación</div>
-          <div><span class="ic"><Icon name="scissors" :size="18" /></span>Edición</div>
+
+        <div class="blk"><span class="i"><Icon name="flag" /></span><div><b>El problema</b><span class="t">{{ work.problem || '[Qué necesitaba el cliente al llegar, en una o dos líneas.]' }}</span></div></div>
+        <div class="blk"><span class="i"><Icon name="camera" /></span><div><b>Lo que hice</b><span class="t">{{ work.did || '[Guion, grabación y edición. Cuéntalo con tus palabras.]' }}</span></div></div>
+        <div class="blk"><span class="i"><Icon name="trending" /></span><div><b>El resultado</b><span class="t">{{ work.result || '[Qué cambió para el cliente, en una frase.]' }}</span></div></div>
+
+        <div class="vmets">
+          <div v-for="m in work.metrics || defaultMetrics" :key="m.label" class="met"><b>{{ m.value }}</b><span>{{ m.label }}</span></div>
         </div>
-        <NuxtLink class="btn" to="/#contacto">Escríbeme para algo así</NuxtLink>
+
+        <NuxtLink class="btn" to="/#contacto"><Icon name="chat" />Escríbeme para algo así</NuxtLink>
+
         <div class="pn">
           <NuxtLink class="btn ghost sm" :to="`/trabajo/${prev.id}`">← Anterior</NuxtLink>
           <NuxtLink class="btn ghost sm" :to="`/trabajo/${next.id}`">Siguiente →</NuxtLink>
         </div>
+      </div>
+    </div>
+
+    <div class="morew">
+      <div class="mlabel">Más trabajos</div>
+      <div class="mgrid">
+        <NuxtLink v-for="m in more" :key="m.id" class="mitem" :to="`/trabajo/${m.id}`" :aria-label="`Ver ${m.client}, ${m.rubro}`">
+          <span :style="{ background: m.tone }">{{ m.rubro }}</span>
+        </NuxtLink>
       </div>
     </div>
   </div>

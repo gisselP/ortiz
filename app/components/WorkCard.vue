@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Work } from '~/composables/useSite'
 
-const props = defineProps<{ work: Work; ratio?: string; caption?: boolean }>()
+const props = defineProps<{ work: Work; ratio?: string; caption?: boolean; featured?: boolean }>()
 
 const video = ref<HTMLVideoElement | null>(null)
 const root = ref<any>(null)
@@ -79,7 +79,9 @@ onBeforeUnmount(() => {
         :poster="work.poster"
         :src="work.preview"
       />
-      <span class="play"><Icon name="play" :size="14" />Reproducir</span>
+      <span v-if="featured" class="big"><Icon name="play" :size="34" /></span>
+      <span v-if="featured" class="dur">Mi reel · 0:45</span>
+      <span v-else class="play"><Icon name="play" :size="14" />Reproducir</span>
       <span class="bar" aria-hidden="true" :style="{ width: progress + '%' }" />
     </span>
     <span v-if="caption !== false" class="cap">
