@@ -105,9 +105,9 @@ onMounted(() => {
         <p>[Qué necesitaba el cliente y cómo lo resolviste, en dos o tres líneas.]</p>
         <div class="did">
           <small>Lo que hice</small>
-          <div>Guion</div>
-          <div>Grabación</div>
-          <div>Edición</div>
+          <div><span class="ic"><Icon name="pen" :size="18" /></span>Guion</div>
+          <div><span class="ic"><Icon name="camera" :size="18" /></span>Grabación</div>
+          <div><span class="ic"><Icon name="scissors" :size="18" /></span>Edición</div>
         </div>
         <NuxtLink class="btn" to="/#contacto">Escríbeme para algo así</NuxtLink>
         <div class="pn">

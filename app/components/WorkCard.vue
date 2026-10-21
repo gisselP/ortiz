@@ -67,7 +67,7 @@ onBeforeUnmount(() => io?.disconnect())
         :src="work.preview"
         @timeupdate="onTime"
       />
-      <span class="play">▶ Reproducir</span>
+      <span class="play"><Icon name="play" :size="14" />Reproducir</span>
       <span class="bar" aria-hidden="true" :style="{ width: progress + '%' }" />
     </span>
     <span v-if="caption !== false" class="cap">

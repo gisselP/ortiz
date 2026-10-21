@@ -47,9 +47,9 @@ export const site = {
     { value: 1, suffix: 'M+', label: 'Reproducciones' }
   ],
   contacts: [
-    { label: 'Celular', text: '[+51 000 000 000]' },
-    { label: 'LinkedIn', text: '[linkedin.com/in/usuario]' },
-    { label: 'Behance', text: '[behance.net/usuario]' }
+    { label: 'Celular', icon: 'phone', text: '[+51 000 000 000]' },
+    { label: 'LinkedIn', icon: 'briefcase', text: '[linkedin.com/in/usuario]' },
+    { label: 'Behance', icon: 'image', text: '[behance.net/usuario]' }
   ]
 }
 

@@ -73,13 +73,17 @@ onBeforeUnmount(() => {
           <WorkCard v-for="w in best" :key="w.id" :work="w" />
           <a class="more" href="#contacto" aria-label="Más trabajos en Behance">
             <small>Behance</small>
-            <strong>Más trabajos ↗</strong>
+            <Icon class="ar" name="arrow" :size="28" />
+            <strong>Más trabajos</strong>
           </a>
         </div>
       </section>
 
       <section id="sobre-mi" class="sec wrap">
-        <div class="label"><h2>Quién soy</h2></div>
+        <div class="label">
+          <span class="ic"><Icon name="user" /></span>
+          <h2>Quién soy</h2>
+        </div>
         <div class="body about">
           <div class="photo">[Foto de Sofía]</div>
           <div class="txt">
@@ -95,6 +99,7 @@ onBeforeUnmount(() => {
 
       <section id="redes" class="sec wrap">
         <div class="label">
+          <span class="ic"><Icon name="phone" /></span>
           <h2>TikTok / Reels / Shorts</h2>
           <p>Videos para redes.</p>
         </div>
@@ -105,6 +110,7 @@ onBeforeUnmount(() => {
 
       <section id="horizontales" class="sec wrap">
         <div class="label">
+          <span class="ic"><Icon name="monitor" /></span>
           <h2>Videos Horizontales</h2>
           <p>Institucional y documental.</p>
         </div>
@@ -115,6 +121,7 @@ onBeforeUnmount(() => {
 
       <section id="contenido" class="sec wrap">
         <div class="label">
+          <span class="ic"><Icon name="trending" /></span>
           <h2>Creación de Contenido</h2>
           <p>Gestión completa de redes, desde cero.</p>
         </div>
@@ -125,9 +132,9 @@ onBeforeUnmount(() => {
               <h3>{{ w.client }}</h3>
               <p>Redes manejadas desde cero. Grabación, guiones, manejo de redes y edición. [Qué se logró, en una frase]</p>
               <div class="metrics">
-                <div><b>[000]</b><span>Interacciones</span></div>
-                <div><b>[000]</b><span>Crecimiento</span></div>
-                <div><b>[000]</b><span>Tiempo</span></div>
+                <div class="m"><span class="ic"><Icon name="heart" :size="18" /></span><b>[000]</b><span>Interacciones</span></div>
+                <div class="m"><span class="ic"><Icon name="trending" :size="18" /></span><b>[000]</b><span>Crecimiento</span></div>
+                <div class="m"><span class="ic"><Icon name="clock" :size="18" /></span><b>[000]</b><span>Tiempo</span></div>
               </div>
             </div>
           </div>
@@ -142,11 +149,18 @@ onBeforeUnmount(() => {
       </section>
 
       <section id="contacto" class="sec wrap" style="border-top: 0; padding-top: 88px; padding-bottom: 0">
-        <div class="label"><h2>Contacto</h2></div>
+        <div class="label">
+          <span class="ic"><Icon name="chat" /></span>
+          <h2>Contacto</h2>
+        </div>
         <div class="body line">
           <a v-for="c in site.contacts" :key="c.label" href="#contacto">
-            <small>{{ c.label }}</small>
-            <span>{{ c.text }} ↗</span>
+            <span class="ic"><Icon :name="c.icon" /></span>
+            <span class="tx">
+              <small>{{ c.label }}</small>
+              <span class="val">{{ c.text }}</span>
+            </span>
+            <Icon name="arrow" :size="20" />
           </a>
         </div>
         <div class="foot" style="flex: 1 1 100%">
@@ -156,6 +170,6 @@ onBeforeUnmount(() => {
       </section>
     </main>
 
-    <a class="fab" href="#contacto">Escríbeme</a>
+    <a class="fab" href="#contacto"><Icon name="chat" :size="20" />Escríbeme</a>
   </div>
 </template>
