@@ -9,23 +9,33 @@ const progress = ref(0)
 const reduce = ref(false)
 const touch = ref(false)
 let io: IntersectionObserver | null = null
+let raf = 0
+// el corte de hover dura 12 s, pero con 6 s alcanza para entender el video y la barra se siente más ágil
+const PREVIEW = 6
 
 function play() {
   const v = video.value
   if (!v || reduce.value) return
   v.preload = 'auto'
   v.play().catch(() => {})
+  cancelAnimationFrame(raf)
+  tick()
+}
+// la barra se dibuja cuadro a cuadro, así avanza fluida y no a saltos como el evento timeupdate
+function tick() {
+  const v = video.value
+  if (!v) return
+  if (v.currentTime >= PREVIEW) v.currentTime = 0
+  progress.value = Math.min(100, (v.currentTime / PREVIEW) * 100)
+  raf = requestAnimationFrame(tick)
 }
 function stop() {
   const v = video.value
   if (!v) return
+  cancelAnimationFrame(raf)
   v.pause()
   try { v.currentTime = 0 } catch {}
   progress.value = 0
-}
-function onTime() {
-  const v = video.value
-  if (v && v.duration) progress.value = (v.currentTime / v.duration) * 100
 }
 
 onMounted(() => {
@@ -42,7 +52,10 @@ onMounted(() => {
     io.observe(el)
   }
 })
-onBeforeUnmount(() => io?.disconnect())
+onBeforeUnmount(() => {
+  io?.disconnect()
+  cancelAnimationFrame(raf)
+})
 </script>
 
 <template>
@@ -62,10 +75,9 @@ onBeforeUnmount(() => io?.disconnect())
         muted
         loop
         playsinline
-        preload="none"
+        preload="metadata"
         :poster="work.poster"
         :src="work.preview"
-        @timeupdate="onTime"
       />
       <span class="play"><Icon name="play" :size="14" />Reproducir</span>
       <span class="bar" aria-hidden="true" :style="{ width: progress + '%' }" />
