@@ -68,11 +68,11 @@ function closeNav() { mobileNavOpen.value = false }
           <a href="#sobre-mi" :class="{ active: activeSection === 'sobre-mi' }">Quién soy</a>
           <a href="#contacto" :class="{ active: activeSection === 'contacto' }">Contacto</a>
         </nav>
-        <button class="burger" :class="{ open: mobileNavOpen }" :aria-expanded="String(mobileNavOpen)" aria-label="Menú" @click="mobileNavOpen = !mobileNavOpen">
+        <button class="burger" :class="{ open: mobileNavOpen }" :aria-expanded="mobileNavOpen" aria-label="Menú" @click="mobileNavOpen = !mobileNavOpen">
           <span /><span /><span />
         </button>
       </header>
-      <div class="mob-nav wrap" :aria-hidden="String(!mobileNavOpen)">
+      <div class="mob-nav wrap" :aria-hidden="!mobileNavOpen" :inert="!mobileNavOpen">
         <nav aria-label="Menú móvil">
           <a href="#redes" @click="closeNav">Reels</a>
           <a href="#casos" @click="closeNav">Contenido</a>
@@ -206,18 +206,7 @@ function closeNav() { mobileNavOpen.value = false }
         </div>
       </section>
 
-      <section id="horizontales" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="monitor" /></span>
-          <h2>Videos Horizontales</h2>
-          <p>Proyectos de la universidad.</p>
-        </div>
-        <div class="body g2">
-          <WorkCard v-for="w in horizontal" :key="w.id" :work="w" ratio="16/9" />
-        </div>
-      </section>
-
-      <section id="contacto" class="sec wrap" data-reveal style="padding-bottom: 0">
+<section id="contacto" class="sec wrap" data-reveal style="padding-bottom: 0">
         <div class="label">
           <span class="ic"><Icon name="chat" /></span>
           <h2>Contacto</h2>
@@ -225,7 +214,7 @@ function closeNav() { mobileNavOpen.value = false }
         </div>
         <div class="body">
           <div class="line">
-            <a v-for="c in site.contacts" :key="c.label" href="#contacto">
+            <a v-for="c in site.contacts" :key="c.label" :href="c.href">
               <span class="ic"><Icon :name="c.icon" /></span>
               <span class="tx">
                 <small>{{ c.label }}</small>
@@ -236,7 +225,7 @@ function closeNav() { mobileNavOpen.value = false }
           </div>
         </div>
         <div class="foot" style="flex: 1 1 100%">
-          <span>© [Año] {{ site.name }}</span>
+          <span>© {{ new Date().getFullYear() }} {{ site.name }}</span>
           <span>{{ site.city }}</span>
         </div>
       </section>

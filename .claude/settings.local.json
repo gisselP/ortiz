@@ -12,7 +12,8 @@
       "Bash(playwright-cli goto:*)",
       "Bash(playwright-cli close:*)",
       "Bash(playwright-cli click:*)",
-      "Bash(node D:/ortiz/.claude/skills/design-taste-frontend/scripts/inspect.mjs http://localhost:3000 --out D:/ortiz/.taste-skill/inspect)"
+      "Bash(node D:/ortiz/.claude/skills/design-taste-frontend/scripts/inspect.mjs http://localhost:3000 --out D:/ortiz/.taste-skill/inspect)",
+      "Bash(node -e \"const p=require\\(''./package.json''\\); console.log\\(''nuxt:'', p.dependencies?.nuxt || p.devDependencies?.nuxt\\)\")"
     ]
   }
 }

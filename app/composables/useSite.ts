@@ -74,9 +74,9 @@ export const site = {
     { text: '[Frase real del cliente, tal como la dijo.]', who: '[Nombre y apellido]', rubro: 'Educación' }
   ],
   contacts: [
-    { label: 'Correo', icon: 'mail', text: '[correo@dominio.com]' },
-    { label: 'LinkedIn', icon: 'briefcase', text: '[linkedin.com/in/usuario]' },
-    { label: 'Behance', icon: 'image', text: '[behance.net/usuario]' }
+    { label: 'Correo', icon: 'mail', text: '[correo@dominio.com]', href: 'mailto:[correo@dominio.com]' },
+    { label: 'LinkedIn', icon: 'briefcase', text: '[linkedin.com/in/usuario]', href: 'https://[linkedin.com/in/usuario]' },
+    { label: 'Behance', icon: 'image', text: '[behance.net/usuario]', href: 'https://[behance.net/usuario]' }
   ]
 }
 
