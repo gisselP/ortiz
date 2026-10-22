@@ -3,6 +3,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2026-10-01',
   devtools: { enabled: false },
   css: ['~/assets/css/main.css'],
+  // Supabase del proyecto de Sofía. La clave publishable es pública; se puede cambiar con variables de entorno.
+  runtimeConfig: {
+    public: {
+      supabaseUrl: 'https://klsqycktkhnihuprprzu.supabase.co',
+      supabaseKey: 'sb_publishable_tiNAnt3wrwHY65bV--ecsw_yCTbGzgK'
+    }
+  },
+  // el panel funciona solo en el navegador (login y datos privados)
+  routeRules: { '/admin/**': { ssr: false }, '/admin': { ssr: false } },
   // desplazamiento suave solo al tocar enlaces del menú, no al recargar
   router: { options: { scrollBehaviorType: 'smooth' } },
   app: {
@@ -23,6 +32,6 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    prerender: { crawlLinks: true, routes: ['/'] }
+    prerender: { crawlLinks: true, routes: ['/', '/admin', '/admin/video'] }
   }
 })

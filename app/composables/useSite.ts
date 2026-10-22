@@ -1,4 +1,4 @@
-// Datos de ejemplo. Más adelante vienen de Supabase (videos) y del panel admin (textos y cifras).
+// Textos y cifras de ejemplo (luego salen del panel admin). Los videos salen de Supabase; si la base está vacía se muestran los de ejemplo.
 // Todo lo que va entre [corchetes] es contenido que Sofía debe dar.
 
 export type Work = {
@@ -8,7 +8,7 @@ export type Work = {
   tone: string
   preview: string
   full: string
-  poster: string
+  poster?: string
   section: 'reel' | 'best' | 'redes' | 'horizontal' | 'contenido'
   problem?: string
   did?: string
@@ -83,7 +83,7 @@ export const site = {
   ]
 }
 
-export function useWorks() {
+function demoWorks() {
   const reel: Work = {
     id: 'reel', client: 'Mi reel', rubro: 'Reel 2026', tone: '#34311F', ...video(1), section: 'reel',
     problem: '[Qué reúne este reel, en una frase.]', did: '[Guion, grabación y edición.]', result: '[Qué lograste con estos videos.]'
@@ -110,4 +110,78 @@ export function useWorks() {
   ]
   const all = [reel, ...hero, ...redes, ...contenido, ...horizontal]
   return { reel, hero, redes, horizontal, contenido, all }
+}
+
+// ---------- Videos desde Supabase ----------
+export type DbWork = {
+  id: string
+  slug: string
+  client: string
+  rubro: string
+  section: Work['section']
+  tone: string
+  preview_url: string | null
+  video_url: string | null
+  poster_url: string | null
+  problem: string | null
+  did: string | null
+  result: string | null
+  metrics: { value: string; label: string; icon?: string }[] | null
+  position: number
+  published: boolean
+  created_at: string
+}
+
+const metricIcons = ['heart', 'trending', 'clock']
+
+export function toWork(r: DbWork): Work {
+  const full = r.video_url || r.preview_url || ''
+  const metrics = (r.metrics || []).filter((m) => m.value || m.label)
+  return {
+    id: r.slug,
+    client: r.client,
+    rubro: r.rubro,
+    tone: r.tone,
+    preview: r.preview_url || full,
+    full,
+    poster: r.poster_url || undefined,
+    section: r.section,
+    problem: r.problem || undefined,
+    did: r.did || undefined,
+    result: r.result || undefined,
+    metrics: metrics.length ? metrics.map((m, i) => ({ value: m.value, label: m.label, icon: m.icon || metricIcons[i % 3]! })) : undefined
+  }
+}
+
+async function fetchWorks(sb: ReturnType<typeof useSupabase>): Promise<Work[] | null> {
+  try {
+    const { data, error } = await sb
+      .from('works')
+      .select('*')
+      .eq('published', true)
+      .order('position', { ascending: true })
+      .order('created_at', { ascending: true })
+    if (error || !data?.length) return null
+    return (data as DbWork[]).map(toWork)
+  } catch (e) {
+    console.warn('No pude leer los videos de la base, uso los de ejemplo.', e)
+    return null
+  }
+}
+
+// Si hay videos en la base se usan solo esos. Si no hay ninguno, se muestran los de ejemplo.
+export function useWorks() {
+  // el cliente se crea aquí, dentro del contexto de Nuxt, y no dentro del callback asíncrono
+  const sb = useSupabase()
+  const { data, refresh } = useAsyncData<Work[] | null>('works', () => fetchWorks(sb), { default: () => null })
+  // el sitio sale ya armado y en el navegador se pide la lista fresca, así lo nuevo aparece sin esperar
+  onNuxtReady(() => { refresh() })
+
+  const demo = demoWorks()
+  const isDemo = computed(() => !data.value?.length)
+  const all = computed<Work[]>(() => (isDemo.value ? demo.all : data.value!))
+  const by = (s: Work['section']) => computed(() => all.value.filter((w) => w.section === s))
+  const reels = by('reel')
+  const reel = computed<Work | null>(() => reels.value[0] ?? null)
+  return { reel, hero: by('best'), redes: by('redes'), horizontal: by('horizontal'), contenido: by('contenido'), all, isDemo, refresh }
 }

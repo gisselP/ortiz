@@ -31,3 +31,11 @@ Abre http://localhost:3000.
 - Verde oliva como acento (#5C6B3A) sobre fondo crema (#F8F6F1).
 - Videos verticales primero, sin carrusel ni marquee.
 - Cualquier mejora de diseño (skills, Playwright) se propone antes de cambiar el código y respeta esto.
+
+## Panel de administración
+
+- Entrada en `/admin` (login con correo y contraseña de Supabase). No se indexa (`robots.txt` y `noindex`).
+- Base de datos en Supabase, proyecto `ortiz` (cuenta de Sofía). Tablas `works`, `site_settings` y `admins`, con RLS: el público solo ve videos publicados y solo los usuarios de `admins` pueden escribir.
+- El sitio sale pre-renderizado con los videos de la base y en el navegador pide la lista fresca. Si la base está vacía muestra los videos de ejemplo.
+- Variables opcionales: `NUXT_PUBLIC_SUPABASE_URL` y `NUXT_PUBLIC_SUPABASE_KEY` (ver `.env.example`). La clave publishable es pública por diseño.
+- Pendiente: subir archivos a Cloudflare R2 desde el formulario (hoy se pega el link), pantallas de Números, Sobre mí y Contacto, y un deploy hook para republicar el sitio al guardar.

@@ -1,20 +1,23 @@
 <script setup lang="ts">
 const route = useRoute()
-const { all } = useWorks()
+const { all, isDemo, refresh } = useWorks()
 
-const idx = computed(() => all.findIndex((w) => w.id === route.params.id))
-const work = computed(() => all[idx.value])
+const idx = computed(() => all.value.findIndex((w) => w.id === route.params.id))
+const work = computed(() => all.value[idx.value])
+// un video recién subido puede no estar en la lista con la que salió el sitio; se pide una vez antes de dar error
+if (!work.value && import.meta.client) await refresh()
 if (!work.value) {
   throw createError({ statusCode: 404, statusMessage: 'No encontré ese video', fatal: true })
 }
+// con videos de ejemplo se muestran textos guía; con videos reales solo lo que Sofía llenó
 const defaultMetrics = [
   { value: '[000]', label: 'Interacciones' },
   { value: '[000]', label: 'Crecimiento' },
   { value: '[000]', label: 'Tiempo' }
 ]
-const more = computed(() => all.filter((w) => w.id !== work.value!.id && w.section !== 'horizontal').slice(0, 6))
-const prev = computed(() => all[(idx.value - 1 + all.length) % all.length]!)
-const next = computed(() => all[(idx.value + 1) % all.length]!)
+const more = computed(() => all.value.filter((w) => w.id !== work.value!.id && w.section !== 'horizontal').slice(0, 6))
+const prev = computed(() => all.value[(idx.value - 1 + all.value.length) % all.value.length]!)
+const next = computed(() => all.value[(idx.value + 1) % all.value.length]!)
 
 useSeoMeta({
   title: `${work.value!.client} | ${site.name}`,
@@ -110,11 +113,11 @@ onMounted(() => {
         <span class="chip">{{ work.rubro }}</span>
         <h1>{{ work.client }}</h1>
 
-        <div class="blk"><span class="i"><Icon name="flag" /></span><div><b>El problema</b><span class="t">{{ work.problem || '[Qué necesitaba el cliente al llegar, en una o dos líneas.]' }}</span></div></div>
-        <div class="blk"><span class="i"><Icon name="camera" /></span><div><b>Lo que hice</b><span class="t">{{ work.did || '[Guion, grabación y edición. Cuéntalo con tus palabras.]' }}</span></div></div>
-        <div class="blk"><span class="i"><Icon name="trending" /></span><div><b>El resultado</b><span class="t">{{ work.result || '[Qué cambió para el cliente, en una frase.]' }}</span></div></div>
+        <div v-if="work.problem || isDemo" class="blk"><span class="i"><Icon name="flag" /></span><div><b>El problema</b><span class="t">{{ work.problem || '[Qué necesitaba el cliente al llegar, en una o dos líneas.]' }}</span></div></div>
+        <div v-if="work.did || isDemo" class="blk"><span class="i"><Icon name="camera" /></span><div><b>Lo que hice</b><span class="t">{{ work.did || '[Guion, grabación y edición. Cuéntalo con tus palabras.]' }}</span></div></div>
+        <div v-if="work.result || isDemo" class="blk"><span class="i"><Icon name="trending" /></span><div><b>El resultado</b><span class="t">{{ work.result || '[Qué cambió para el cliente, en una frase.]' }}</span></div></div>
 
-        <div class="vmets">
+        <div v-if="work.metrics || isDemo" class="vmets">
           <div v-for="m in work.metrics || defaultMetrics" :key="m.label" class="met"><b>{{ m.value }}</b><span>{{ m.label }}</span></div>
         </div>
 

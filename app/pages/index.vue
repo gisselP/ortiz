@@ -48,10 +48,10 @@ onMounted(() => {
     <header class="topbar wrap">
       <span class="brand">{{ site.name }}</span>
       <nav class="nav" aria-label="Secciones">
-        <a href="#redes">TikTok / Reels / Shorts</a>
-        <a href="#casos">Creación de Contenido</a>
+        <a v-if="redes.length" href="#redes">TikTok / Reels / Shorts</a>
+        <a v-if="contenido.length" href="#casos">Creación de Contenido</a>
         <a href="#servicios">Qué hago</a>
-        <a href="#horizontales">Videos Horizontales</a>
+        <a v-if="horizontal.length" href="#horizontales">Videos Horizontales</a>
         <a href="#contacto">Contacto</a>
       </nav>
       <a class="btn sm" :href="site.whatsapp"><Icon name="chat" :size="18" />Escríbeme</a>
@@ -66,11 +66,11 @@ onMounted(() => {
           <p class="lead">{{ site.lead }}</p>
           <div class="cta">
             <a class="btn" :href="site.whatsapp"><Icon name="chat" />Escríbeme por WhatsApp</a>
-            <NuxtLink class="btn ghost" to="/trabajo/reel">Ver mi reel</NuxtLink>
+            <NuxtLink v-if="reel" class="btn ghost" :to="`/trabajo/${reel.id}`">Ver mi reel</NuxtLink>
           </div>
         </div>
         <div class="stair">
-          <WorkCard :work="reel" featured :caption="false" />
+          <WorkCard v-if="reel" :work="reel" featured :caption="false" />
           <WorkCard v-for="w in hero" :key="w.id" :work="w" />
         </div>
       </section>
@@ -83,7 +83,7 @@ onMounted(() => {
         </div>
       </section>
 
-      <section id="redes" class="sec first wrap" data-reveal>
+      <section v-if="redes.length" id="redes" class="sec first wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="phone" /></span>
           <h2>TikTok / Reels / Shorts</h2>
@@ -94,7 +94,7 @@ onMounted(() => {
         </div>
       </section>
 
-      <section id="casos" class="sec wrap" data-reveal>
+      <section v-if="contenido.length" id="casos" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="trending" /></span>
           <h2>Creación de Contenido</h2>
@@ -106,10 +106,10 @@ onMounted(() => {
             <div class="main">
               <span class="cr">{{ w.rubro }}</span>
               <h3>{{ w.client }}</h3>
-              <div class="step"><span class="ic sm"><Icon name="flag" :size="18" /></span><div><b>El problema</b><span class="t">{{ w.problem }}</span></div></div>
-              <div class="step"><span class="ic sm"><Icon name="camera" :size="18" /></span><div><b>Lo que hice</b><span class="t">{{ w.did }}</span></div></div>
-              <div class="step"><span class="ic sm"><Icon name="trending" :size="18" /></span><div><b>El resultado</b><span class="t">{{ w.result }}</span></div></div>
-              <div class="mets">
+              <div v-if="w.problem" class="step"><span class="ic sm"><Icon name="flag" :size="18" /></span><div><b>El problema</b><span class="t">{{ w.problem }}</span></div></div>
+              <div v-if="w.did" class="step"><span class="ic sm"><Icon name="camera" :size="18" /></span><div><b>Lo que hice</b><span class="t">{{ w.did }}</span></div></div>
+              <div v-if="w.result" class="step"><span class="ic sm"><Icon name="trending" :size="18" /></span><div><b>El resultado</b><span class="t">{{ w.result }}</span></div></div>
+              <div v-if="w.metrics" class="mets">
                 <div v-for="m in w.metrics" :key="m.label"><b>{{ m.value }}</b><span>{{ m.label }}</span></div>
               </div>
             </div>
@@ -160,7 +160,7 @@ onMounted(() => {
         </div>
       </section>
 
-      <section id="horizontales" class="sec wrap" data-reveal>
+      <section v-if="horizontal.length" id="horizontales" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="monitor" /></span>
           <h2>Videos Horizontales</h2>
