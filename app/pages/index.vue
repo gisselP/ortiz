@@ -64,8 +64,8 @@ function closeNav() { mobileNavOpen.value = false }
         <nav class="nav" aria-label="Secciones">
           <a v-if="redes.length" href="#redes" :class="{ active: activeSection === 'redes' }">Reels</a>
           <a v-if="contenido.length" href="#casos" :class="{ active: activeSection === 'casos' }">Contenido</a>
-          <a href="#servicios" :class="{ active: activeSection === 'servicios' }">Qué hago</a>
           <a href="#sobre-mi" :class="{ active: activeSection === 'sobre-mi' }">Quién soy</a>
+          <a href="#servicios" :class="{ active: activeSection === 'servicios' }">Qué hago</a>
           <a href="#contacto" :class="{ active: activeSection === 'contacto' }">Contacto</a>
         </nav>
         <button class="burger" :class="{ open: mobileNavOpen }" :aria-expanded="mobileNavOpen" aria-label="Menú" @click="mobileNavOpen = !mobileNavOpen">
@@ -76,10 +76,9 @@ function closeNav() { mobileNavOpen.value = false }
         <nav aria-label="Menú móvil">
           <a v-if="redes.length" href="#redes" @click="closeNav">Reels</a>
           <a v-if="contenido.length" href="#casos" @click="closeNav">Contenido</a>
-          <a href="#servicios" @click="closeNav">Qué hago</a>
           <a href="#sobre-mi" @click="closeNav">Quién soy</a>
+          <a href="#servicios" @click="closeNav">Qué hago</a>
           <a href="#contacto" @click="closeNav">Contacto</a>
-          <a class="btn" style="margin-top:20px" :href="site.whatsapp" @click="closeNav"><Icon name="chat" />Escríbeme por WhatsApp</a>
         </nav>
       </div>
     </div>
@@ -121,7 +120,7 @@ function closeNav() { mobileNavOpen.value = false }
           <div class="g4">
             <WorkCard v-for="w in redes.slice(0, 8)" :key="w.id" :work="w" />
           </div>
-          <div v-if="redes.length > 8" class="ver-mas">
+          <div class="ver-mas">
             <NuxtLink class="btn ghost" to="/videos">Ver más videos</NuxtLink>
           </div>
         </div>
@@ -145,6 +144,24 @@ function closeNav() { mobileNavOpen.value = false }
               <div v-if="w.metrics" class="mets">
                 <div v-for="m in w.metrics" :key="m.label"><b>{{ m.value }}</b><span>{{ m.label }}</span></div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="sobre-mi" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="user" /></span>
+          <h2>Quién soy</h2>
+        </div>
+        <div class="body about">
+          <div class="photo">[Foto de Sofía]</div>
+          <div class="txt">
+            <p class="lead2">{{ site.bio }}</p>
+            <p class="more-txt">{{ site.bioMore }}</p>
+            <div class="tools">
+              <small>Herramientas</small>
+              {{ site.tools }}
             </div>
           </div>
         </div>
@@ -176,24 +193,6 @@ function closeNav() { mobileNavOpen.value = false }
             <span class="num">{{ p.n }}</span>
             <h3>{{ p.title }}</h3>
             <p>{{ p.text }}</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="sobre-mi" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="user" /></span>
-          <h2>Quién soy</h2>
-        </div>
-        <div class="body about">
-          <div class="photo">[Foto de Sofía]</div>
-          <div class="txt">
-            <p class="lead2">{{ site.bio }}</p>
-            <p class="more-txt">{{ site.bioMore }}</p>
-            <div class="tools">
-              <small>Herramientas</small>
-              {{ site.tools }}
-            </div>
           </div>
         </div>
       </section>
