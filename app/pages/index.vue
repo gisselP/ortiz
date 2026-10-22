@@ -117,8 +117,13 @@ function closeNav() { mobileNavOpen.value = false }
           <h2>TikTok / Reels / Shorts</h2>
           <p>Videos para redes.</p>
         </div>
-        <div class="body g4">
-          <WorkCard v-for="w in redes" :key="w.id" :work="w" />
+        <div class="body">
+          <div class="g4">
+            <WorkCard v-for="w in redes" :key="w.id" :work="w" />
+          </div>
+          <div class="ver-mas">
+            <NuxtLink class="btn ghost" to="/videos">Ver más videos</NuxtLink>
+          </div>
         </div>
       </section>
 
@@ -193,20 +198,7 @@ function closeNav() { mobileNavOpen.value = false }
         </div>
       </section>
 
-      <section id="clientes" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="heart" /></span>
-          <h2>Lo que dicen mis clientes</h2>
-        </div>
-        <div class="body g2">
-          <figure v-for="(q, i) in site.quotes" :key="i" class="quote">
-            <blockquote>{{ q.text }}</blockquote>
-            <figcaption><b>{{ q.who }}</b><span class="cr">{{ q.rubro }}</span></figcaption>
-          </figure>
-        </div>
-      </section>
-
-<section id="contacto" class="sec wrap" data-reveal style="padding-bottom: 0">
+      <section id="contacto" class="sec wrap" data-reveal style="padding-bottom: 0">
         <div class="label">
           <span class="ic"><Icon name="chat" /></span>
           <h2>Contacto</h2>
