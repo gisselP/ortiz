@@ -1,4 +1,4 @@
-// Textos y cifras de ejemplo (luego salen del panel admin). Los videos salen de Supabase; si la base está vacía se muestran los de ejemplo.
+// Textos y cifras de ejemplo (luego salen del panel admin). Los videos salen de Supabase.
 // Todo lo que va entre [corchetes] es contenido que Sofía debe dar.
 
 export type Work = {
@@ -15,31 +15,6 @@ export type Work = {
   result?: string
   metrics?: { value: string; label: string; icon: string }[]
 }
-
-const tones = ['#1A1A14', '#34311F', '#46422E', '#5C6B3A']
-const rubros = ['Veterinaria', 'Inmobiliaria', 'Pastelería', 'Colegio', 'Joyería', 'Gastronomía']
-
-function video(n: number) {
-  const k = ((n - 1) % 3) + 1
-  return { preview: `/videos/preview-${k}.mp4`, full: `/videos/video-${k}.mp4`, poster: `/videos/poster-${k}.jpg` }
-}
-
-function make(section: Work['section'], prefix: string, count: number, offset = 0): Work[] {
-  return Array.from({ length: count }, (_, i) => ({
-    id: `${prefix}-${i + 1}`,
-    client: '[Cliente]',
-    rubro: rubros[(i + offset) % rubros.length]!,
-    tone: tones[(i * 3 + offset) % tones.length]!,
-    ...video(i + offset + 1),
-    section
-  }))
-}
-
-const metrics = [
-  { value: '[000]', label: 'Interacciones', icon: 'heart' },
-  { value: '[000]', label: 'Crecimiento', icon: 'trending' },
-  { value: '[000]', label: 'Tiempo', icon: 'clock' }
-]
 
 export const site = {
   name: 'Sofía Ortiz',
@@ -78,35 +53,6 @@ export const site = {
     { label: 'LinkedIn', icon: 'briefcase', text: '[linkedin.com/in/usuario]', href: 'https://[linkedin.com/in/usuario]' },
     { label: 'Behance', icon: 'image', text: '[behance.net/usuario]', href: 'https://[behance.net/usuario]' }
   ]
-}
-
-function demoWorks() {
-  const reel: Work = {
-    id: 'reel', client: 'Mi reel', rubro: 'Reel 2026', tone: '#34311F', ...video(1), section: 'reel',
-    problem: '[Qué reúne este reel, en una frase.]', did: '[Guion, grabación y edición.]', result: '[Qué lograste con estos videos.]'
-  }
-  const hero = make('best', 'destacado', 2, 1)
-  const redes = make('redes', 'red', 8, 2)
-  const horizontal: Work[] = [
-    { ...make('horizontal', 'horizontal', 1)[0]!, client: '[Nombre del proyecto]', rubro: 'Universidad', tone: '#34311F' },
-    { ...make('horizontal', 'horizontal', 1, 1)[0]!, id: 'horizontal-2', client: '[Nombre del proyecto]', rubro: 'Universidad', tone: '#46422E' }
-  ]
-  const contenido: Work[] = [
-    {
-      ...make('contenido', 'contenido', 1)[0]!, id: 'contenido-1', client: 'Heladería', rubro: 'Gastronomía', tone: '#46422E',
-      problem: '[Qué necesitaba el cliente al llegar, en una frase.]',
-      did: 'Grabación, guiones, manejo de redes y edición. [Detalle breve]',
-      result: '[Qué cambió para el cliente, en una frase.]', metrics
-    },
-    {
-      ...make('contenido', 'contenido', 1, 1)[0]!, id: 'contenido-2', client: 'Colegio', rubro: 'Educación', tone: '#34311F',
-      problem: '[Qué necesitaba el cliente al llegar, en una frase.]',
-      did: 'Grabación, guiones, manejo de redes y edición. [Detalle breve]',
-      result: '[Qué cambió para el cliente, en una frase.]', metrics
-    }
-  ]
-  const all = [reel, ...hero, ...redes, ...contenido, ...horizontal]
-  return { reel, hero, redes, horizontal, contenido, all }
 }
 
 // ---------- Videos desde Supabase ----------
@@ -166,7 +112,7 @@ async function fetchWorks(sb: ReturnType<typeof useSupabase>): Promise<Work[] | 
   }
 }
 
-// Si hay videos en la base se usan solo esos. Si no hay ninguno, se muestran los de ejemplo.
+// Los videos salen solo de la base. Si no hay ninguno, el sitio no muestra esas secciones.
 export function useWorks() {
   // el cliente se crea aquí, dentro del contexto de Nuxt, y no dentro del callback asíncrono
   const sb = useSupabase()
@@ -174,11 +120,9 @@ export function useWorks() {
   // el sitio sale ya armado y en el navegador se pide la lista fresca, así lo nuevo aparece sin esperar
   onNuxtReady(() => { refresh() })
 
-  const demo = demoWorks()
-  const isDemo = computed(() => !data.value?.length)
-  const all = computed<Work[]>(() => (isDemo.value ? demo.all : data.value!))
+  const all = computed<Work[]>(() => data.value ?? [])
   const by = (s: Work['section']) => computed(() => all.value.filter((w) => w.section === s))
   const reels = by('reel')
   const reel = computed<Work | null>(() => reels.value[0] ?? null)
-  return { reel, hero: by('best'), redes: by('redes'), horizontal: by('horizontal'), contenido: by('contenido'), all, isDemo, refresh }
+  return { reel, hero: by('best'), redes: by('redes'), horizontal: by('horizontal'), contenido: by('contenido'), all, refresh }
 }

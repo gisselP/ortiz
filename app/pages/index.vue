@@ -95,7 +95,7 @@ function closeNav() { mobileNavOpen.value = false }
             <NuxtLink v-if="reel" class="btn ghost" :to="`/trabajo/${reel.id}`">Ver mi reel</NuxtLink>
           </div>
         </div>
-        <div class="stair">
+        <div v-if="reel || hero.length" class="stair">
           <WorkCard v-if="reel" :work="reel" featured :caption="false" />
           <WorkCard v-for="w in hero" :key="w.id" :work="w" />
         </div>
