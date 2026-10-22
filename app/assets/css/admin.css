@@ -97,3 +97,17 @@ textarea.field { min-height: 110px; resize: vertical; }
 }
 .cols > .apv { position: sticky; top: 24px; align-self: flex-start; }
 @media (max-width: 899px) { .cols > .apv { position: static; } }
+
+/* subida de archivos */
+.up .drop { position: relative; border: 2px dashed var(--fg); border-radius: 12px; padding: 28px 24px; text-align: center; background: #FFFDF8; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.up .drop.drag { border-color: var(--accent); background: #ECEEDD; }
+.up .drop.done { border-style: solid; border-color: var(--accent); background: #ECEEDD; }
+.up .dt { font-size: 19px; font-weight: 600; overflow-wrap: anywhere; }
+.up .dh { color: var(--muted); font-size: 15px; }
+.up .bar { width: 100%; max-width: 360px; height: 8px; border-radius: 99px; background: #D9D6C8; overflow: hidden; }
+.up .bar i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.up .sr { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.up .lnk { margin-top: 10px; font-size: 15px; }
+.up .lnk summary { cursor: pointer; color: var(--muted); padding: 6px 0; }
+.up .lnk .field { margin-top: 8px; }
+@media (prefers-reduced-motion: reduce) { .up .bar i { transition: none; } }

@@ -43,6 +43,9 @@ const rubro = computed(() => (f.rubroSel === '__otro' ? f.rubroOtro.trim() : f.r
 const original = ref<DbWork | null>(null)
 const loading = ref(true)
 const saving = ref(false)
+const uploading = reactive({ v: false, po: false, p: false })
+const anyUploading = computed(() => uploading.v || uploading.po || uploading.p)
+const posterUp = ref<{ uploadFile: (f: File) => Promise<void> } | null>(null)
 const error = ref('')
 
 function fill(w: DbWork) {
@@ -70,6 +73,36 @@ function fill(w: DbWork) {
   f.published = w.published
 }
 
+// Saca una imagen del video elegido y la sube como portada, si no hay una puesta.
+async function makePoster(file: File) {
+  if (f.poster_url || !posterUp.value) return
+  const src = URL.createObjectURL(file)
+  try {
+    const v = document.createElement('video')
+    v.muted = true
+    v.playsInline = true
+    v.preload = 'metadata'
+    v.src = src
+    await new Promise<void>((ok, fail) => {
+      v.onloadedmetadata = () => ok()
+      v.onerror = () => fail(new Error('video'))
+    })
+    v.currentTime = Math.min(1, (v.duration || 2) / 4)
+    await new Promise<void>((ok) => (v.onseeked = () => ok()))
+    const w = Math.min(720, v.videoWidth || 720)
+    const c = document.createElement('canvas')
+    c.width = w
+    c.height = Math.round(w * ((v.videoHeight || 1280) / (v.videoWidth || 720)))
+    c.getContext('2d')!.drawImage(v, 0, 0, c.width, c.height)
+    const blob = await new Promise<Blob | null>((ok) => c.toBlob(ok, 'image/jpeg', 0.85))
+    if (blob && !f.poster_url) await posterUp.value.uploadFile(new File([blob], 'portada.jpg', { type: 'image/jpeg' }))
+  } catch {
+    // si el navegador no puede leer el video, simplemente no hay portada automática
+  } finally {
+    URL.revokeObjectURL(src)
+  }
+}
+
 function slugify(t: string) {
   return (
     t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'video'
@@ -79,9 +112,10 @@ const isUrl = (u: string) => /^https?:\/\/\S+$/i.test(u)
 
 async function save() {
   error.value = ''
+  if (anyUploading.value) return (error.value = 'Espera a que termine de subirse el archivo.')
   if (!f.client.trim()) return (error.value = 'Escribe el título del video, por ejemplo el nombre del cliente.')
   if (!rubro.value) return (error.value = 'Escribe de qué rubro es.')
-  if (!isUrl(f.video_url.trim())) return (error.value = 'Pega el link completo del video. Debe empezar con https://')
+  if (!isUrl(f.video_url.trim())) return (error.value = 'Sube el video o pega su link. Es lo único obligatorio de este paso.')
   for (const [k, v] of [['corte corto', f.preview_url], ['póster', f.poster_url]] as const) {
     if (v.trim() && !isUrl(v.trim())) return (error.value = `El link del ${k} no es válido. Debe empezar con https://`)
   }
@@ -156,20 +190,45 @@ onMounted(async () => {
       <div class="fm">
         <section class="fsec">
           <div class="step-k">Paso 1</div>
-          <h2>Pega el link de tu video</h2>
+          <h2>Elige tu video</h2>
           <div class="fg">
-            <label class="fl" for="v">Video completo</label>
-            <input id="v" v-model="f.video_url" class="field" type="url" inputmode="url" placeholder="https://…/mi-video.mp4" required>
-            <p class="fh">Es el que se ve al abrir el video. Formato MP4 vertical. Pronto podrás subirlo desde aquí.</p>
+            <FileUpload
+              v-model="f.video_url"
+              input-id="v"
+              kind="video"
+              label="Video completo"
+              button="Elegir video"
+              accept="video/mp4,video/quicktime,video/webm"
+              hint="Formato MP4 vertical, hasta 95 MB. Los videos más livianos cargan más rápido en tu web."
+              @picked="makePoster"
+              @busy="(b) => (uploading.v = b)"
+            />
           </div>
           <div class="fg">
-            <label class="fl" for="p">Corte corto para la vista previa (opcional)</label>
-            <input id="p" v-model="f.preview_url" class="field" type="url" inputmode="url" placeholder="https://…/mi-video-corto.mp4">
-            <p class="fh">Unos 10 segundos. Es el que se mueve al pasar el mouse. Si lo dejas vacío se usa el video completo.</p>
+            <FileUpload
+              ref="posterUp"
+              v-model="f.poster_url"
+              input-id="po"
+              kind="poster"
+              label="Imagen de portada (opcional)"
+              button="Elegir imagen"
+              accept="image/jpeg,image/png,image/webp"
+              hint="Si no eliges una, se crea sola con una imagen de tu video."
+              :max-mb="10"
+              @busy="(b) => (uploading.po = b)"
+            />
           </div>
           <div class="fg">
-            <label class="fl" for="po">Imagen de portada (opcional)</label>
-            <input id="po" v-model="f.poster_url" class="field" type="url" inputmode="url" placeholder="https://…/portada.jpg">
+            <FileUpload
+              v-model="f.preview_url"
+              input-id="p"
+              kind="preview"
+              label="Corte corto para la vista previa (opcional)"
+              button="Elegir corte"
+              accept="video/mp4,video/quicktime,video/webm"
+              hint="Unos 10 segundos. Es el que se mueve al pasar el mouse. Si no subes uno, se usa el video completo."
+              @busy="(b) => (uploading.p = b)"
+            />
           </div>
         </section>
 
@@ -227,7 +286,7 @@ onMounted(async () => {
 
         <p v-if="error" class="note err" role="alert">{{ error }}</p>
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 20px">
-          <button class="abtn" type="submit" :disabled="saving">{{ saving ? 'Guardando…' : 'Guardar' }}</button>
+          <button class="abtn" type="submit" :disabled="saving || anyUploading">{{ saving ? 'Guardando…' : anyUploading ? 'Subiendo…' : 'Guardar' }}</button>
           <NuxtLink class="abtn ghost" to="/admin">Cancelar</NuxtLink>
         </div>
       </div>

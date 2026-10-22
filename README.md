@@ -39,3 +39,10 @@ Abre http://localhost:3000.
 - El sitio sale pre-renderizado con los videos de la base y en el navegador pide la lista fresca.
 - Variables opcionales: `NUXT_PUBLIC_SUPABASE_URL` y `NUXT_PUBLIC_SUPABASE_KEY` (ver `.env.example`). La clave publishable es pública por diseño.
 - Pendiente: subir archivos a Cloudflare R2 desde el formulario (hoy se pega el link), pantallas de Números, Sobre mí y Contacto, y un deploy hook para republicar el sitio al guardar.
+
+## Subida de videos (Cloudflare Pages + R2)
+
+- El formulario del admin sube los archivos a `/api/upload` (`functions/api/upload.ts`), una Pages Function que los guarda en el bucket R2 `sofia-videos`. Solo deja pasar a administradores de Supabase.
+- Configuración en Cloudflare Pages (Settings > Bindings): binding R2 con nombre `VIDEOS` apuntando al bucket `sofia-videos`. Luego hay que volver a desplegar.
+- Variable opcional `R2_PUBLIC_URL` (por defecto la URL `r2.dev` del bucket; al comprar el dominio cambiarla por el dominio de videos).
+- Límite de 95 MB por archivo. La subida no funciona con `npm run dev` (ahí se puede pegar un link).

@@ -67,3 +67,4 @@ All site content lives in one file. There are two exports:
 - Tablas `works`, `site_settings`, `admins` con RLS. Solo quienes están en `admins` escriben.
 - Los videos nuevos no están pre-renderizados: la página `/trabajo/[id]` pide la lista al navegador si no encuentra el id.
 - La tipografía (Bricolage Grotesque + Instrument Sans) y el verde oliva se mantienen. Ver README.
+- Subida de archivos: `app/components/FileUpload.vue` envía a `functions/api/upload.ts` (Cloudflare Pages Function con binding R2 `VIDEOS`). Ver README.
