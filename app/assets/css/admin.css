@@ -111,3 +111,8 @@ textarea.field { min-height: 110px; resize: vertical; }
 .up .lnk summary { cursor: pointer; color: var(--muted); padding: 6px 0; }
 .up .lnk .field { margin-top: 8px; }
 @media (prefers-reduced-motion: reduce) { .up .bar i { transition: none; } }
+
+.tag { display: inline-block; margin-left: 6px; padding: 1px 10px; border-radius: 99px; font-style: normal; font-size: 13px; font-weight: 600; }
+.tag.on { background: var(--accent-soft); color: var(--accent-deep); }
+.tag.mid { background: #F1E6CC; color: #6B4A0A; }
+.tag.off { background: #E7E4DA; color: #4A4638; }

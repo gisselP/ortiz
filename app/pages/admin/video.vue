@@ -11,7 +11,6 @@ const sections = [
   { key: 'reel', label: 'Mi reel (solo uno)' },
   { key: 'best', label: 'Mejores videos' },
   { key: 'redes', label: 'TikTok / Reels / Shorts' },
-  { key: 'horizontal', label: 'Videos Horizontales' },
   { key: 'contenido', label: 'Creación de Contenido' }
 ] as const
 type SectionKey = (typeof sections)[number]['key']
@@ -293,7 +292,7 @@ onMounted(async () => {
 
       <aside class="apv" aria-label="Vista previa">
         <div class="k">Así se verá en tu web</div>
-        <div class="card" :class="{ h: f.section === 'horizontal' }">
+        <div class="card">
           <img v-if="f.poster_url" :src="f.poster_url" alt="">
           <video v-else-if="f.preview_url || f.video_url" :src="f.preview_url || f.video_url" muted playsinline preload="metadata" />
           <div>

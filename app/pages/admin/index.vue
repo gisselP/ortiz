@@ -10,7 +10,6 @@ const sections = [
   { key: 'reel', label: 'Mi reel' },
   { key: 'best', label: 'Mejores videos' },
   { key: 'redes', label: 'TikTok / Reels / Shorts' },
-  { key: 'horizontal', label: 'Videos Horizontales' },
   { key: 'contenido', label: 'Creación de Contenido' }
 ] as const
 
@@ -40,8 +39,31 @@ const listError = ref('')
 const busy = ref(false)
 const confirmId = ref<string | null>(null)
 
+// cuántos videos de cada sección salen en el inicio (los demás quedan guardados)
+const limits: Record<string, number | null> = { reel: 1, best: 2, redes: 8, contenido: null }
+const hints: Record<string, string> = {
+  reel: 'Solo cabe un reel. Es la tarjeta grande del inicio.',
+  best: 'Salen los 2 primeros, son las tarjetas de al lado del reel.',
+  redes: 'Salen los 8 primeros en el inicio. Los demás se ven en «Ver más videos».',
+  contenido: 'Cada video es un caso en la sección Creación de Contenido.'
+}
 const current = computed(() => works.value.filter((w) => w.section === tab.value).sort((a, b) => a.position - b.position))
 const counts = computed(() => Object.fromEntries(sections.map((s) => [s.key, works.value.filter((w) => w.section === s.key).length])))
+
+// qué se ve en la web para cada fila (los ocultos no cuentan para el orden)
+const status = computed(() => {
+  const limit = limits[tab.value] ?? null
+  let rank = 0
+  return current.value.map((w) => {
+    if (!w.published) return { text: 'Oculto', tone: 'off' }
+    const inside = limit === null || rank < limit
+    rank++
+    if (inside) return { text: tab.value === 'redes' || tab.value === 'contenido' ? 'Visible en tu web' : 'Sale en el inicio', tone: 'on' }
+    return tab.value === 'redes'
+      ? { text: 'Solo en «Ver más videos»', tone: 'mid' }
+      : { text: 'Guardado, no se muestra', tone: 'mid' }
+  })
+})
 
 async function fetchWorks() {
   listError.value = ''
@@ -155,19 +177,19 @@ onMounted(async () => {
         </button>
       </nav>
 
-      <p class="note">El número 1 es el primero que sale en tu web. Usa Subir y Bajar para cambiar el orden. Si ocultas un video, deja de verse pero no se borra.</p>
+      <p class="note">{{ hints[tab] }} Usa Subir y Bajar para cambiar el orden. Si ocultas un video, deja de verse pero no se borra.</p>
       <p v-if="listError" class="note err" role="alert">{{ listError }}</p>
 
       <div v-if="current.length" class="lst">
         <div v-for="(w, i) in current" :key="w.id" class="rw" :class="{ off: !w.published }">
           <div class="n">{{ i + 1 }}</div>
-          <div class="th" :class="{ h: w.section === 'horizontal' }" aria-hidden="true">
+          <div class="th" aria-hidden="true">
             <img v-if="w.poster_url" :src="w.poster_url" alt="" loading="lazy">
             <video v-else-if="w.preview_url || w.video_url" :src="w.preview_url || w.video_url || ''" muted playsinline preload="metadata" />
           </div>
           <div class="inf">
             <b>{{ w.client }}</b>
-            <span>{{ w.rubro }} · {{ w.published ? 'Visible en tu web' : 'Oculto' }}</span>
+            <span>{{ w.rubro }} <i class="tag" :class="status[i]?.tone">{{ status[i]?.text }}</i></span>
           </div>
           <div class="act">
             <button type="button" class="abtn ghost sm" :disabled="busy || i === 0" @click="move(i, -1)">↑ Subir</button>

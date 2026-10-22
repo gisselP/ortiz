@@ -97,7 +97,7 @@ function closeNav() { mobileNavOpen.value = false }
         </div>
         <div v-if="reel || hero.length" class="stair">
           <WorkCard v-if="reel" :work="reel" featured :caption="false" />
-          <WorkCard v-for="w in hero" :key="w.id" :work="w" />
+          <WorkCard v-for="w in hero.slice(0, 2)" :key="w.id" :work="w" />
         </div>
         <div class="scroll-hint" aria-hidden="true">↓</div>
       </section>
