@@ -1,4 +1,4 @@
-# Type
+git# Type
 
 Typography is most of what a visitor sees and most of what makes a page look designed or assembled.
 The direction sheet deals you a type system (faces, weights, settings). This file is how to use it.

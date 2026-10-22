@@ -15,6 +15,7 @@
   color-scheme: light;
 }
 * { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 body {
   margin: 0;
   background: var(--bg);
@@ -249,8 +250,8 @@ h1, h2, h3 { text-wrap: balance; }
 
 /* celular: encabezado corto para que los videos se vean sin bajar */
 @media (max-width: 700px) {
-  .nav, .topbar .btn { display: none; }
-  .topbar { padding-top: 16px; padding-bottom: 8px; }
+  .nav { display: none; }
+  .topbar { padding-top: 12px; padding-bottom: 12px; }
   .hero { padding-top: 8px; }
 }
 /* el botón flotante aparece después del inicio */
@@ -262,3 +263,207 @@ h1, h2, h3 { text-wrap: balance; }
   .line a .tx { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 2px; }
   .line .val { font-size: 19px; }
 }
+
+/* ── Nav sticky, hamburguesa, activo, scroll hint ── */
+
+/* Header wrapper sticky */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--bg);
+  transition: box-shadow .2s;
+}
+.site-header.scrolled { box-shadow: 0 1px 0 rgba(26,26,20,.12); }
+
+/* Active nav link */
+.nav a.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Hamburger button */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: 8px;
+  color: var(--fg);
+  flex-shrink: 0;
+}
+.burger:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.burger span {
+  display: block;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform .22s ease, opacity .22s ease;
+  transform-origin: center;
+}
+.burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* Mobile nav panel */
+.mob-nav {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .3s cubic-bezier(.4,0,.2,1), border-color .3s;
+  border-top: 1px solid transparent;
+}
+.mob-nav nav { display: flex; flex-direction: column; padding: 8px 0 24px; }
+.mob-nav nav a {
+  padding: 14px 0;
+  font-size: 19px;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(26,26,20,.08);
+}
+.mob-nav nav a:last-of-type { border-bottom: 0; }
+.nav-open .mob-nav {
+  max-height: 520px;
+  border-top-color: rgba(26,26,20,.1);
+}
+
+/* Scroll hint en hero */
+.hero { position: relative; }
+.scroll-hint {
+  position: absolute;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  color: var(--muted);
+  pointer-events: none;
+  animation: scrollBounce 2s ease-in-out infinite;
+}
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: .6; }
+  50% { transform: translateX(-50%) translateY(8px); opacity: 1; }
+}
+
+/* Mobile: mostrar hamburguesa, ocultar scroll hint */
+@media (max-width: 700px) {
+  .burger { display: flex; }
+  .scroll-hint { display: none; }
+  /* Nav y botón del header ya están hidden por regla existente —
+     el burger los reemplaza */
+}
+
+/* Responsividad: breakpoints intermedios */
+@media (min-width: 701px) and (max-width: 900px) {
+  /* En tablet el nav se comprime — reducir gap */
+  .nav { gap: 4px 16px; font-size: 14px; }
+  /* Topbar: no wrappear, comprimir */
+  .topbar { flex-wrap: nowrap; }
+}
+
+/* En pantallas <560px los casos quedan mejor con thumb más pequeño */
+@media (max-width: 560px) {
+  .case .thumb { flex: 0 0 120px; }
+  .case h3 { font-size: 28px; }
+  .mets b { font-size: 34px; }
+  .pstep .num { font-size: 52px; }
+}
+
+/* ── Elevación de diseño ──────────────────────────── */
+
+/* 1. Hero llena el viewport (sin min-height en móvil) */
+@media (min-width: 700px) {
+  .hero { min-height: calc(100svh - 88px); }
+}
+
+/* 2. Divisores de sección: línea gruesa en oliva en vez de gris delgada */
+.sec { border-top: 4px solid var(--accent); }
+.sec.first { border-top: 0; }
+
+/* 3. Labels de sección: sin círculos de ícono, h2 con más presencia */
+.sec .label .ic { display: none; }
+.sec .label { max-width: 280px; }
+.sec .label h2 { margin-top: 0; font-size: clamp(32px, 3.2vw, 44px); }
+.sec .label p { margin-top: 12px; font-size: 14px; color: var(--muted); }
+
+/* 7. Casos: play badge siempre visible para indicar que el thumb es clickeable */
+.case .thumb .play { opacity: .8; transform: none; }
+.case .thumb .card:hover .play,
+.case .thumb .card:focus-visible .play { opacity: 1; }
+
+/* 4. Tarjetas de video: sombra suave para separar del fondo crema */
+.tile { box-shadow: 0 4px 20px rgba(26,26,20,.1); }
+
+/* 5. Proceso: números grandes en oliva, sin círculo */
+.pstep .num {
+  display: block;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(56px, 6vw, 80px);
+  line-height: 1;
+  letter-spacing: -.04em;
+  margin-bottom: 10px;
+}
+
+/* 6. Testimonios: cita grande + comilla decorativa */
+.quote { position: relative; padding-top: 52px; }
+.quote::before {
+  content: '\201C';
+  position: absolute;
+  top: -4px;
+  left: -6px;
+  font-family: var(--display);
+  font-size: clamp(80px, 9vw, 120px);
+  color: var(--accent);
+  line-height: .8;
+  opacity: .18;
+  pointer-events: none;
+  user-select: none;
+}
+.quote blockquote {
+  font-size: clamp(22px, 2.4vw, 34px);
+  font-style: italic;
+  line-height: 1.3;
+}
+
+/* 7. Contacto: fondo oliva oscuro — cierra la página con el mismo tono que abre */
+#contacto {
+  background: var(--accent-deep);
+  color: var(--on-accent);
+  border-top: none;
+}
+#contacto .label h2 { color: var(--on-accent); }
+#contacto .label p { color: var(--accent-light); }
+#contacto .big-cta {
+  display: flex;
+  width: 100%;
+  background: var(--on-accent);
+  color: var(--accent-deep);
+  border-color: var(--on-accent);
+}
+#contacto .big-cta:hover,
+#contacto .big-cta:focus-visible {
+  background: transparent;
+  color: var(--on-accent);
+  border-color: rgba(248,246,241,.55);
+}
+#contacto .line a { color: var(--on-accent); border-top-color: rgba(248,246,241,.2); }
+#contacto .line { border-bottom-color: rgba(248,246,241,.2); }
+#contacto .line a:hover,
+#contacto .line a:focus-visible { background: rgba(248,246,241,.07); color: var(--on-accent); }
+#contacto .line a .ic { background: rgba(248,246,241,.15); color: var(--on-accent); }
+#contacto .line a:hover .ic,
+#contacto .line a:focus-visible .ic { background: rgba(248,246,241,.28); color: var(--on-accent); }
+#contacto .line small { color: var(--accent-light); }
+#contacto .line .val { color: var(--on-accent); font-size: clamp(16px, 2vw, 24px); }
+#contacto .line a { padding: 14px 12px; }
+#contacto .foot { color: var(--accent-light); }
+
+/* Contacto: sección más compacta en general */
+#contacto.sec { padding-top: 48px; padding-bottom: 48px; }

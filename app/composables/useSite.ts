@@ -74,10 +74,7 @@ export const site = {
     { text: '[Frase real del cliente, tal como la dijo.]', who: '[Nombre y apellido]', rubro: 'Educación' }
   ],
   contacts: [
-    { label: 'Celular', icon: 'phone', text: '[+51 000 000 000]' },
     { label: 'Correo', icon: 'mail', text: '[correo@dominio.com]' },
-    { label: 'Instagram', icon: 'camera', text: '[@usuario]' },
-    { label: 'TikTok', icon: 'play', text: '[@usuario]' },
     { label: 'LinkedIn', icon: 'briefcase', text: '[linkedin.com/in/usuario]' },
     { label: 'Behance', icon: 'image', text: '[behance.net/usuario]' }
   ]

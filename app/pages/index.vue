@@ -11,7 +11,14 @@ useSeoMeta({
 })
 
 const showFab = ref(false)
-function onScroll() { showFab.value = window.scrollY > 520 }
+const scrolled = ref(false)
+const mobileNavOpen = ref(false)
+const activeSection = ref('')
+
+function onScroll() {
+  showFab.value = window.scrollY > 520
+  scrolled.value = window.scrollY > 10
+}
 onMounted(() => {
   onScroll()
   window.addEventListener('scroll', onScroll, { passive: true })
@@ -27,35 +34,55 @@ onMounted(() => {
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in')
-          io.unobserve(e.target)
-        }
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
       })
     },
     { threshold: 0.12 }
   )
-  els.forEach((el) => {
-    el.classList.add('rv')
-    io.observe(el)
-  })
+  els.forEach((el) => { el.classList.add('rv'); io.observe(el) })
   setTimeout(() => els.forEach((el) => el.classList.add('in')), 8000)
 })
+
+// Resaltar la sección activa en el nav al hacer scroll
+onMounted(() => {
+  if (!('IntersectionObserver' in window)) return
+  const io = new IntersectionObserver(
+    (entries) => { entries.forEach((e) => { if (e.isIntersecting) activeSection.value = e.target.id }) },
+    { rootMargin: '-20% 0px -60% 0px' }
+  )
+  document.querySelectorAll('section[id]').forEach((s) => io.observe(s))
+})
+
+function closeNav() { mobileNavOpen.value = false }
 </script>
 
 <template>
   <div>
-    <header class="topbar wrap">
-      <span class="brand">{{ site.name }}</span>
-      <nav class="nav" aria-label="Secciones">
-        <a href="#redes">TikTok / Reels / Shorts</a>
-        <a href="#casos">Creación de Contenido</a>
-        <a href="#servicios">Qué hago</a>
-        <a href="#horizontales">Videos Horizontales</a>
-        <a href="#contacto">Contacto</a>
-      </nav>
-      <a class="btn sm" :href="site.whatsapp"><Icon name="chat" :size="18" />Escríbeme</a>
-    </header>
+    <div class="site-header" :class="{ scrolled, 'nav-open': mobileNavOpen }">
+      <header class="topbar wrap">
+        <span class="brand">{{ site.name }}</span>
+        <nav class="nav" aria-label="Secciones">
+          <a href="#redes" :class="{ active: activeSection === 'redes' }">Reels</a>
+          <a href="#casos" :class="{ active: activeSection === 'casos' }">Contenido</a>
+          <a href="#servicios" :class="{ active: activeSection === 'servicios' }">Qué hago</a>
+          <a href="#sobre-mi" :class="{ active: activeSection === 'sobre-mi' }">Quién soy</a>
+          <a href="#contacto" :class="{ active: activeSection === 'contacto' }">Contacto</a>
+        </nav>
+        <button class="burger" :class="{ open: mobileNavOpen }" :aria-expanded="String(mobileNavOpen)" aria-label="Menú" @click="mobileNavOpen = !mobileNavOpen">
+          <span /><span /><span />
+        </button>
+      </header>
+      <div class="mob-nav wrap" :aria-hidden="String(!mobileNavOpen)">
+        <nav aria-label="Menú móvil">
+          <a href="#redes" @click="closeNav">Reels</a>
+          <a href="#casos" @click="closeNav">Contenido</a>
+          <a href="#servicios" @click="closeNav">Qué hago</a>
+          <a href="#sobre-mi" @click="closeNav">Quién soy</a>
+          <a href="#contacto" @click="closeNav">Contacto</a>
+          <a class="btn" style="margin-top:20px" :href="site.whatsapp" @click="closeNav"><Icon name="chat" />Escríbeme por WhatsApp</a>
+        </nav>
+      </div>
+    </div>
 
     <main>
       <section class="hero wrap">
@@ -73,6 +100,7 @@ onMounted(() => {
           <WorkCard :work="reel" featured :caption="false" />
           <WorkCard v-for="w in hero" :key="w.id" :work="w" />
         </div>
+        <div class="scroll-hint" aria-hidden="true">↓</div>
       </section>
 
       <section id="stats" class="stats" aria-label="Números">
@@ -147,6 +175,24 @@ onMounted(() => {
         </div>
       </section>
 
+      <section id="sobre-mi" class="sec wrap" data-reveal>
+        <div class="label">
+          <span class="ic"><Icon name="user" /></span>
+          <h2>Quién soy</h2>
+        </div>
+        <div class="body about">
+          <div class="photo">[Foto de Sofía]</div>
+          <div class="txt">
+            <p class="lead2">{{ site.bio }}</p>
+            <p class="more-txt">{{ site.bioMore }}</p>
+            <div class="tools">
+              <small>Herramientas</small>
+              {{ site.tools }}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="clientes" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="heart" /></span>
@@ -171,24 +217,6 @@ onMounted(() => {
         </div>
       </section>
 
-      <section id="sobre-mi" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="user" /></span>
-          <h2>Quién soy</h2>
-        </div>
-        <div class="body about">
-          <div class="photo">[Foto de Sofía]</div>
-          <div class="txt">
-            <p class="lead2">{{ site.bio }}</p>
-            <p class="more-txt">{{ site.bioMore }}</p>
-            <div class="tools">
-              <small>Herramientas</small>
-              {{ site.tools }}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section id="contacto" class="sec wrap" data-reveal style="padding-bottom: 0">
         <div class="label">
           <span class="ic"><Icon name="chat" /></span>
@@ -196,7 +224,6 @@ onMounted(() => {
           <p>Respondo en [tiempo, por ejemplo menos de 24 horas].</p>
         </div>
         <div class="body">
-          <a class="btn big-cta" :href="site.whatsapp"><Icon name="chat" />Escríbeme por WhatsApp</a>
           <div class="line">
             <a v-for="c in site.contacts" :key="c.label" href="#contacto">
               <span class="ic"><Icon :name="c.icon" /></span>
