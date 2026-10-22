@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { reel, hero, redes, horizontal, contenido } = useWorks()
+const { reel, hero, redes, contenido } = useWorks()
 
 useSeoMeta({
   title: `${site.name} | Comunicadora audiovisual`,
@@ -11,7 +11,14 @@ useSeoMeta({
 })
 
 const showFab = ref(false)
-function onScroll() { showFab.value = window.scrollY > 520 }
+const scrolled = ref(false)
+const mobileNavOpen = ref(false)
+const activeSection = ref('')
+
+function onScroll() {
+  showFab.value = window.scrollY > 520
+  scrolled.value = window.scrollY > 10
+}
 onMounted(() => {
   onScroll()
   window.addEventListener('scroll', onScroll, { passive: true })
@@ -27,35 +34,55 @@ onMounted(() => {
   const io = new IntersectionObserver(
     (entries) => {
       entries.forEach((e) => {
-        if (e.isIntersecting) {
-          e.target.classList.add('in')
-          io.unobserve(e.target)
-        }
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target) }
       })
     },
     { threshold: 0.12 }
   )
-  els.forEach((el) => {
-    el.classList.add('rv')
-    io.observe(el)
-  })
+  els.forEach((el) => { el.classList.add('rv'); io.observe(el) })
   setTimeout(() => els.forEach((el) => el.classList.add('in')), 8000)
 })
+
+// Resaltar la sección activa en el nav al hacer scroll
+onMounted(() => {
+  if (!('IntersectionObserver' in window)) return
+  const io = new IntersectionObserver(
+    (entries) => { entries.forEach((e) => { if (e.isIntersecting) activeSection.value = e.target.id }) },
+    { rootMargin: '-20% 0px -60% 0px' }
+  )
+  document.querySelectorAll('section[id]').forEach((s) => io.observe(s))
+})
+
+function closeNav() { mobileNavOpen.value = false }
 </script>
 
 <template>
   <div>
-    <header class="topbar wrap">
-      <span class="brand">{{ site.name }}</span>
-      <nav class="nav" aria-label="Secciones">
-        <a v-if="redes.length" href="#redes">TikTok / Reels / Shorts</a>
-        <a v-if="contenido.length" href="#casos">Creación de Contenido</a>
-        <a href="#servicios">Qué hago</a>
-        <a v-if="horizontal.length" href="#horizontales">Videos Horizontales</a>
-        <a href="#contacto">Contacto</a>
-      </nav>
-      <a class="btn sm" :href="site.whatsapp"><Icon name="chat" :size="18" />Escríbeme</a>
-    </header>
+    <div class="site-header" :class="{ scrolled, 'nav-open': mobileNavOpen }">
+      <header class="topbar wrap">
+        <span class="brand">{{ site.name }}</span>
+        <nav class="nav" aria-label="Secciones">
+          <a v-if="redes.length" href="#redes" :class="{ active: activeSection === 'redes' }">Reels</a>
+          <a v-if="contenido.length" href="#casos" :class="{ active: activeSection === 'casos' }">Contenido</a>
+          <a href="#servicios" :class="{ active: activeSection === 'servicios' }">Qué hago</a>
+          <a href="#sobre-mi" :class="{ active: activeSection === 'sobre-mi' }">Quién soy</a>
+          <a href="#contacto" :class="{ active: activeSection === 'contacto' }">Contacto</a>
+        </nav>
+        <button class="burger" :class="{ open: mobileNavOpen }" :aria-expanded="mobileNavOpen" aria-label="Menú" @click="mobileNavOpen = !mobileNavOpen">
+          <span /><span /><span />
+        </button>
+      </header>
+      <div class="mob-nav wrap" :aria-hidden="!mobileNavOpen" :inert="!mobileNavOpen">
+        <nav aria-label="Menú móvil">
+          <a v-if="redes.length" href="#redes" @click="closeNav">Reels</a>
+          <a v-if="contenido.length" href="#casos" @click="closeNav">Contenido</a>
+          <a href="#servicios" @click="closeNav">Qué hago</a>
+          <a href="#sobre-mi" @click="closeNav">Quién soy</a>
+          <a href="#contacto" @click="closeNav">Contacto</a>
+          <a class="btn" style="margin-top:20px" :href="site.whatsapp" @click="closeNav"><Icon name="chat" />Escríbeme por WhatsApp</a>
+        </nav>
+      </div>
+    </div>
 
     <main>
       <section class="hero wrap">
@@ -73,6 +100,7 @@ onMounted(() => {
           <WorkCard v-if="reel" :work="reel" featured :caption="false" />
           <WorkCard v-for="w in hero" :key="w.id" :work="w" />
         </div>
+        <div class="scroll-hint" aria-hidden="true">↓</div>
       </section>
 
       <section id="stats" class="stats" aria-label="Números">
@@ -89,8 +117,13 @@ onMounted(() => {
           <h2>TikTok / Reels / Shorts</h2>
           <p>Videos para redes.</p>
         </div>
-        <div class="body g4">
-          <WorkCard v-for="w in redes" :key="w.id" :work="w" />
+        <div class="body">
+          <div class="g4">
+            <WorkCard v-for="w in redes.slice(0, 8)" :key="w.id" :work="w" />
+          </div>
+          <div v-if="redes.length > 8" class="ver-mas">
+            <NuxtLink class="btn ghost" to="/videos">Ver más videos</NuxtLink>
+          </div>
         </div>
       </section>
 
@@ -147,30 +180,6 @@ onMounted(() => {
         </div>
       </section>
 
-      <section id="clientes" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="heart" /></span>
-          <h2>Lo que dicen mis clientes</h2>
-        </div>
-        <div class="body g2">
-          <figure v-for="(q, i) in site.quotes" :key="i" class="quote">
-            <blockquote>{{ q.text }}</blockquote>
-            <figcaption><b>{{ q.who }}</b><span class="cr">{{ q.rubro }}</span></figcaption>
-          </figure>
-        </div>
-      </section>
-
-      <section v-if="horizontal.length" id="horizontales" class="sec wrap" data-reveal>
-        <div class="label">
-          <span class="ic"><Icon name="monitor" /></span>
-          <h2>Videos Horizontales</h2>
-          <p>Proyectos de la universidad.</p>
-        </div>
-        <div class="body g2">
-          <WorkCard v-for="w in horizontal" :key="w.id" :work="w" ratio="16/9" />
-        </div>
-      </section>
-
       <section id="sobre-mi" class="sec wrap" data-reveal>
         <div class="label">
           <span class="ic"><Icon name="user" /></span>
@@ -196,9 +205,8 @@ onMounted(() => {
           <p>Respondo en [tiempo, por ejemplo menos de 24 horas].</p>
         </div>
         <div class="body">
-          <a class="btn big-cta" :href="site.whatsapp"><Icon name="chat" />Escríbeme por WhatsApp</a>
           <div class="line">
-            <a v-for="c in site.contacts" :key="c.label" href="#contacto">
+            <a v-for="c in site.contacts" :key="c.label" :href="c.href">
               <span class="ic"><Icon :name="c.icon" /></span>
               <span class="tx">
                 <small>{{ c.label }}</small>
@@ -209,7 +217,7 @@ onMounted(() => {
           </div>
         </div>
         <div class="foot" style="flex: 1 1 100%">
-          <span>© [Año] {{ site.name }}</span>
+          <span>© {{ new Date().getFullYear() }} {{ site.name }}</span>
           <span>{{ site.city }}</span>
         </div>
       </section>

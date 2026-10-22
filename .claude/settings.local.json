@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(npx --yes playwright --version)",
+      "Skill(playwright-cli)",
+      "Bash(playwright-cli open:*)",
+      "Bash(playwright-cli resize:*)",
+      "Bash(playwright-cli screenshot:*)",
+      "Bash(playwright-cli eval:*)",
+      "Bash(playwright-cli reload:*)",
+      "Bash(playwright-cli goto:*)",
+      "Bash(playwright-cli close:*)",
+      "Bash(playwright-cli click:*)",
+      "Bash(node D:/ortiz/.claude/skills/design-taste-frontend/scripts/inspect.mjs http://localhost:3000 --out D:/ortiz/.taste-skill/inspect)",
+      "Bash(node -e \"const p=require\\(''./package.json''\\); console.log\\(''nuxt:'', p.dependencies?.nuxt || p.devDependencies?.nuxt\\)\")"
+    ]
+  }
+}
