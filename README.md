@@ -16,7 +16,7 @@ Abre http://localhost:3000.
 - `app/pages/index.vue` home con todas las secciones del diseño.
 - `app/pages/trabajo/[id].vue` video abierto, con su propia dirección para compartir.
 - `app/components/WorkCard.vue` tile con video que se reproduce al pasar el mouse (en celular, al verlo en pantalla).
-- `app/composables/useSite.ts` textos y videos de ejemplo. Los `[corchetes]` son placeholders.
+- `app/composables/useSite.ts` textos de ejemplo y lectura de videos desde Supabase. Los `[corchetes]` son placeholders.
 - `public/videos/` videos de prueba (cortes de hover, videos completos y portadas).
 
 ## Próximos pasos
