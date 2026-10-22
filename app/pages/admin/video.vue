@@ -198,7 +198,7 @@ onMounted(async () => {
               label="Video completo"
               button="Elegir video"
               accept="video/mp4,video/quicktime,video/webm"
-              hint="Formato MP4 vertical, hasta 95 MB. Los videos más livianos cargan más rápido en tu web."
+              hint="Formato MP4 vertical, hasta 500 MB. Los videos más livianos cargan más rápido en tu web."
               @picked="makePoster"
               @busy="(b) => (uploading.v = b)"
             />

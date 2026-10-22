@@ -29,11 +29,72 @@ function setBusy(v: boolean) {
   emit('busy', v)
 }
 
+const SINGLE_MAX = 90 * 1024 * 1024 // más que esto se sube en partes
+const BIG_MAX = 500 * 1024 * 1024
+
+type Reply = { status: number; body: { url?: string; error?: string; key?: string; uploadId?: string; partSize?: number; etag?: string; partNumber?: number } }
+
+// una petición con progreso; no lanza error, devuelve el estado (0 = se cortó la conexión)
+function send(url: string, token: string, body: Blob | string, type: string, onProgress?: (loaded: number) => void): Promise<Reply> {
+  return new Promise((resolve) => {
+    const xhr = new XMLHttpRequest()
+    xhr.open('POST', url)
+    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
+    xhr.setRequestHeader('Content-Type', type)
+    xhr.upload.onprogress = (e) => { if (e.lengthComputable) onProgress?.(e.loaded) }
+    xhr.onerror = () => resolve({ status: 0, body: {} })
+    xhr.onload = () => {
+      let parsed: Reply['body'] = {}
+      try { parsed = JSON.parse(xhr.responseText) } catch { /* respuesta que no es JSON */ }
+      resolve({ status: xhr.status, body: parsed })
+    }
+    xhr.send(body)
+  })
+}
+
+function failMessage(r: Reply) {
+  if (r.status === 0) return 'Se cortó la conexión. Intenta otra vez.'
+  if (r.status === 404 || r.status === 405) return 'La subida solo funciona en la web publicada, no en tu computadora. Aquí puedes pegar un link.'
+  return r.body.error || 'No pude subir el archivo. Intenta otra vez.'
+}
+
+// archivos grandes: se abren, se mandan en partes de ~50 MB y se cierran
+async function uploadBig(file: File, token: string): Promise<string | null> {
+  const type = file.type || 'application/octet-stream'
+  const q = `kind=${props.kind}&name=${encodeURIComponent(file.name)}&size=${file.size}`
+  const open = await send(`/api/upload?action=mpu-create&${q}`, token, '', type)
+  if (open.status !== 200 || !open.body.key || !open.body.uploadId) { error.value = failMessage(open); return null }
+  const { key, uploadId } = open.body
+  const partSize = open.body.partSize || 50 * 1024 * 1024
+  const total = Math.ceil(file.size / partSize)
+  const parts: { partNumber: number; etag: string }[] = []
+  let done = 0
+  for (let n = 1; n <= total; n++) {
+    const chunk = file.slice((n - 1) * partSize, n * partSize)
+    let reply: Reply = { status: 0, body: {} }
+    for (let attempt = 0; attempt < 3; attempt++) {
+      reply = await send(`/api/upload?action=mpu-part&key=${encodeURIComponent(key)}&uploadId=${encodeURIComponent(uploadId)}&part=${n}`, token, chunk, type, (loaded) => {
+        progress.value = Math.round(((done + loaded) / file.size) * 100)
+      })
+      if (reply.status === 200 && reply.body.etag) break
+      if (reply.status !== 0 && reply.status < 500) break // un error que se repetiría igual
+    }
+    if (reply.status !== 200 || !reply.body.etag) { error.value = failMessage(reply); return null }
+    parts.push({ partNumber: reply.body.partNumber || n, etag: reply.body.etag })
+    done += chunk.size
+    progress.value = Math.round((done / file.size) * 100)
+  }
+  const end = await send(`/api/upload?action=mpu-done&key=${encodeURIComponent(key)}&uploadId=${encodeURIComponent(uploadId)}`, token, JSON.stringify({ parts }), 'application/json')
+  if (end.status !== 200 || !end.body.url) { error.value = failMessage(end); return null }
+  return end.body.url
+}
+
 async function uploadFile(file: File) {
   error.value = ''
-  const limit = (props.maxMb ?? 95) * 1024 * 1024
-  if (file.size > limit) {
-    error.value = `Este archivo pesa ${Math.round(file.size / 1024 / 1024)} MB y el máximo es ${props.maxMb ?? 95} MB. Comprímelo y vuelve a intentar.`
+  const big = file.size > SINGLE_MAX && (props.kind === 'video' || props.kind === 'preview')
+  const maxMb = props.maxMb ?? (props.kind === 'video' ? BIG_MAX / 1024 / 1024 : 95)
+  if (file.size > maxMb * 1024 * 1024) {
+    error.value = `Este archivo pesa ${Math.round(file.size / 1024 / 1024)} MB y el máximo es ${maxMb} MB. Comprímelo y vuelve a intentar.`
     return
   }
   const { data } = await sb.auth.getSession()
@@ -46,35 +107,20 @@ async function uploadFile(file: File) {
   progress.value = 0
   fileName.value = file.name
   emit('picked', file)
-  await new Promise<void>((resolve) => {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', `/api/upload?kind=${props.kind}&name=${encodeURIComponent(file.name)}`)
-    xhr.setRequestHeader('Authorization', `Bearer ${token}`)
-    xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) progress.value = Math.round((e.loaded / e.total) * 100)
-    }
-    xhr.onerror = () => {
-      error.value = 'Se cortó la conexión. Intenta otra vez.'
+  if (big) {
+    const url = await uploadBig(file, token)
+    if (url) emit('update:modelValue', url)
+    else fileName.value = ''
+  } else {
+    const r = await send(`/api/upload?kind=${props.kind}&name=${encodeURIComponent(file.name)}`, token, file, file.type || 'application/octet-stream', (loaded) => {
+      progress.value = Math.round((loaded / file.size) * 100)
+    })
+    if (r.status === 200 && r.body.url) emit('update:modelValue', r.body.url)
+    else {
       fileName.value = ''
-      resolve()
+      error.value = failMessage(r)
     }
-    xhr.onload = () => {
-      let body: { url?: string; error?: string } = {}
-      try { body = JSON.parse(xhr.responseText) } catch { /* respuesta que no es JSON */ }
-      if (xhr.status === 200 && body.url) {
-        emit('update:modelValue', body.url)
-      } else {
-        fileName.value = ''
-        error.value =
-          xhr.status === 404 || xhr.status === 405
-            ? 'La subida solo funciona en la web publicada, no en tu computadora. Aquí puedes pegar un link.'
-            : body.error || 'No pude subir el archivo. Intenta otra vez.'
-      }
-      resolve()
-    }
-    xhr.send(file)
-  })
+  }
   setBusy(false)
 }
 

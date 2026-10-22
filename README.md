@@ -45,4 +45,4 @@ Abre http://localhost:3000.
 - El formulario del admin sube los archivos a `/api/upload` (`functions/api/upload.ts`), una Pages Function que los guarda en el bucket R2 `sofia-videos`. Solo deja pasar a administradores de Supabase.
 - Configuración en Cloudflare Pages (Settings > Bindings): binding R2 con nombre `VIDEOS` apuntando al bucket `sofia-videos`. Luego hay que volver a desplegar.
 - Variable opcional `R2_PUBLIC_URL` (por defecto la URL `r2.dev` del bucket; al comprar el dominio cambiarla por el dominio de videos).
-- Límite de 95 MB por archivo. La subida no funciona con `npm run dev` (ahí se puede pegar un link).
+- Los videos pueden pesar hasta 500 MB (los de más de 90 MB se suben en partes de 50 MB, porque Cloudflare solo deja pasar unos 100 MB por petición). Fotos y portadas, hasta 95 MB. La subida no funciona con `npm run dev` (ahí se puede pegar un link).
