@@ -32,7 +32,7 @@ app/
   composables/
     useSite.ts          # All site content + Work type + useWorks()
   assets/css/main.css  # Global styles
-public/videos/         # Video assets (poster-N.jpg, preview-N.mp4, video-N.mp4)
+public/videos/ ya no existe (los videos viven en Cloudflare R2)
 ```
 
 ### Content model (`useSite.ts`)
@@ -63,7 +63,7 @@ All site content lives in one file. There are two exports:
 ### Admin y base de datos
 
 - `/admin` (login) y `/admin/video` (formulario) corren solo en el navegador. Usan Supabase (`useSupabase`, `useAdmin`). Proyecto `ortiz` en la cuenta de Sofía.
-- `useWorks()` ahora devuelve refs computadas (`reel` puede ser `null`) y lee la tabla `works` de Supabase; si está vacía usa los datos de ejemplo. `isDemo` indica ese caso.
+- `useWorks()` ahora devuelve refs computadas (`reel` puede ser `null`) y lee la tabla `works` de Supabase.
 - Tablas `works`, `site_settings`, `admins` con RLS. Solo quienes están en `admins` escriben.
 - Los videos nuevos no están pre-renderizados: la página `/trabajo/[id]` pide la lista al navegador si no encuentra el id.
 - La tipografía (Bricolage Grotesque + Instrument Sans) y el verde oliva se mantienen. Ver README.

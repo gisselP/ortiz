@@ -21,6 +21,7 @@ useSeoMeta({
           TikTok / Reels / Shorts
         </h1>
         <p style="color:var(--muted); margin:0 0 48px">{{ redes.length }} videos</p>
+        <p v-if="!redes.length" style="color:var(--muted)">Aún no hay videos.</p>
         <div class="g4">
           <WorkCard v-for="w in redes" :key="w.id" :work="w" />
         </div>
