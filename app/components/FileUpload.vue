@@ -2,7 +2,7 @@
 // Sube un archivo a /api/upload (función de Cloudflare que lo guarda en R2) y devuelve su link.
 const props = defineProps<{
   modelValue: string
-  kind: 'video' | 'preview' | 'poster'
+  kind: 'video' | 'preview' | 'poster' | 'photo'
   inputId: string
   label: string
   hint?: string

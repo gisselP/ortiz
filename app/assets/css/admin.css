@@ -116,3 +116,11 @@ textarea.field { min-height: 110px; resize: vertical; }
 .tag.on { background: var(--accent-soft); color: var(--accent-deep); }
 .tag.mid { background: #F1E6CC; color: #6B4A0A; }
 .tag.off { background: #E7E4DA; color: #4A4638; }
+
+/* pantallas de textos */
+.rep { margin: 0 0 24px; padding: 20px; border: 2px solid #CFCBBC; border-radius: 12px; min-width: 0; }
+.rep legend { padding: 0 8px; font-weight: 700; }
+.rep .act { display: flex; flex-wrap: wrap; gap: 8px; }
+.two { display: flex; flex-wrap: wrap; gap: 0 20px; }
+.two > .fg { flex: 1 1 200px; min-width: 0; }
+.phv { display: block; margin-top: 16px; width: 160px; aspect-ratio: 3/4; object-fit: cover; border-radius: 12px; }

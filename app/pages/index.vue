@@ -1,11 +1,13 @@
 <script setup lang="ts">
 const { reel, hero, redes, contenido } = useWorks()
+// textos editables desde el panel (si aún no hay, salen los de ejemplo)
+const site = useSiteContent()
 
 useSeoMeta({
-  title: `${site.name} | Comunicadora audiovisual`,
-  description: site.description,
-  ogTitle: `${site.name} | Comunicadora audiovisual`,
-  ogDescription: site.description,
+  title: () => `${site.value.name} | Comunicadora audiovisual`,
+  description: () => site.value.description,
+  ogTitle: () => `${site.value.name} | Comunicadora audiovisual`,
+  ogDescription: () => site.value.description,
   ogType: 'website',
   twitterCard: 'summary_large_image'
 })
@@ -102,11 +104,12 @@ function closeNav() { mobileNavOpen.value = false }
         <div class="scroll-hint" aria-hidden="true">↓</div>
       </section>
 
-      <section id="stats" class="stats" aria-label="Números">
+      <section v-if="site.stats.length" id="stats" class="stats" aria-label="Números">
         <div v-for="(s, i) in site.stats" :key="s.label" class="stat">
           <b :aria-label="`${s.value}${s.suffix}`"><Odometer :value="s.value" :delay="i * 250" /><i aria-hidden="true">{{ s.suffix }}</i></b>
           <span class="l">{{ s.label }}</span>
-          <a class="src" :href="s.href">{{ s.src }}</a>
+          <a v-if="s.src && s.href" class="src" :href="s.href">{{ s.src }}</a>
+          <span v-else-if="s.src" class="src">{{ s.src }}</span>
         </div>
       </section>
 
@@ -155,7 +158,8 @@ function closeNav() { mobileNavOpen.value = false }
           <h2>Quién soy</h2>
         </div>
         <div class="body about">
-          <div class="photo">[Foto de Sofía]</div>
+          <div v-if="site.photo" class="photo has-img"><img :src="site.photo" :alt="`Foto de ${site.name}`" loading="lazy"></div>
+          <div v-else class="photo">[Foto de Sofía]</div>
           <div class="txt">
             <p class="lead2">{{ site.bio }}</p>
             <p class="more-txt">{{ site.bioMore }}</p>
@@ -201,7 +205,7 @@ function closeNav() { mobileNavOpen.value = false }
         <div class="label">
           <span class="ic"><Icon name="chat" /></span>
           <h2>Contacto</h2>
-          <p>Respondo en [tiempo, por ejemplo menos de 24 horas].</p>
+          <p v-if="site.replyTime">Respondo en {{ site.replyTime }}.</p>
         </div>
         <div class="body">
           <div class="line">

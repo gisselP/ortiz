@@ -48,11 +48,94 @@ export const site = {
     { text: '[Frase real del cliente, tal como la dijo.]', who: '[Nombre y apellido]', rubro: 'Gastronomía' },
     { text: '[Frase real del cliente, tal como la dijo.]', who: '[Nombre y apellido]', rubro: 'Educación' }
   ],
+  photo: '',
+  replyTime: '[tiempo, por ejemplo menos de 24 horas]',
   contacts: [
     { label: 'Correo', icon: 'mail', text: '[correo@dominio.com]', href: 'mailto:[correo@dominio.com]' },
     { label: 'LinkedIn', icon: 'briefcase', text: '[linkedin.com/in/usuario]', href: 'https://[linkedin.com/in/usuario]' },
     { label: 'Behance', icon: 'image', text: '[behance.net/usuario]', href: 'https://[behance.net/usuario]' }
   ]
+}
+
+// ---------- Textos desde Supabase (panel: Números, Sobre mí, Servicios, Contacto) ----------
+export type SettingRow = { key: string; value: Record<string, any> }
+export type SiteContent = Omit<typeof site, 'stats' | 'steps'> & {
+  stats: { value: number; suffix: string; label: string; src: string; href: string }[]
+  steps: { n: number; title: string; text: string }[]
+}
+
+const clean = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
+const pick = (v: unknown, fallback: string) => clean(v) || fallback
+
+// acepta @usuario, usuario o un link completo
+function socialLink(base: string, v: string) {
+  if (/^https?:\/\//i.test(v)) return v
+  return base + v.replace(/^@/, '').replace(/^\/+/, '')
+}
+const shown = (v: string) => v.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/$/, '')
+
+export function whatsappLink(phone: string) {
+  let n = phone.replace(/\D/g, '')
+  if (!n) return '#contacto'
+  if (n.length === 9) n = '51' + n
+  return `https://wa.me/${n}?text=${encodeURIComponent('Hola Sofía, vi tu portafolio y quiero hablar de un video.')}`
+}
+
+export function buildContacts(c: Record<string, any>) {
+  const out: { label: string; icon: string; text: string; href: string }[] = []
+  const phone = clean(c.phone), email = clean(c.email), ig = clean(c.instagram), tt = clean(c.tiktok), li = clean(c.linkedin), be = clean(c.behance)
+  if (phone) out.push({ label: 'WhatsApp', icon: 'chat', text: phone, href: whatsappLink(phone) })
+  if (email) out.push({ label: 'Correo', icon: 'mail', text: email, href: `mailto:${email}` })
+  if (ig) out.push({ label: 'Instagram', icon: 'image', text: shown(ig), href: socialLink('https://instagram.com/', ig) })
+  if (tt) out.push({ label: 'TikTok', icon: 'phone', text: shown(tt), href: socialLink('https://tiktok.com/@', tt) })
+  if (li) out.push({ label: 'LinkedIn', icon: 'briefcase', text: shown(li), href: socialLink('https://linkedin.com/in/', li) })
+  if (be) out.push({ label: 'Behance', icon: 'image', text: shown(be), href: socialLink('https://behance.net/', be) })
+  return out
+}
+
+// lo que se guardó en el panel pisa a los textos de ejemplo
+export function mergeSite(rows: SettingRow[] | null): SiteContent {
+  const by = Object.fromEntries((rows || []).map((r) => [r.key, r.value || {}])) as Record<string, Record<string, any>>
+  const a = by.about || {}, n = by.numbers || {}, sv = by.services || {}, c = by.contact || {}
+  const out: SiteContent = { ...site, stats: site.stats.map((s) => ({ ...s })), steps: site.steps.map((s) => ({ ...s })) }
+  out.availability = pick(a.availability, site.availability)
+  out.lead = pick(a.lead, site.lead)
+  out.bio = pick(a.bio, site.bio)
+  out.bioMore = pick(a.bioMore, site.bioMore)
+  out.tools = pick(a.tools, site.tools)
+  out.photo = clean(a.photo_url)
+  if (Array.isArray(n.items)) {
+    out.stats = n.items
+      .filter((s: any) => clean(s.label) && s.value !== '' && s.value != null && !Number.isNaN(Number(s.value)))
+      .map((s: any) => ({ value: Number(s.value), suffix: clean(s.suffix), label: clean(s.label), src: clean(s.src), href: clean(s.href) }))
+  }
+  if (Array.isArray(sv.services)) out.services = sv.services.filter((s: any) => clean(s.name)).map((s: any) => ({ name: clean(s.name), text: clean(s.text), eta: clean(s.eta) }))
+  if (Array.isArray(sv.steps)) out.steps = sv.steps.filter((s: any) => clean(s.title)).map((s: any, i: number) => ({ n: i + 1, title: clean(s.title), text: clean(s.text) }))
+  if (by.contact) {
+    out.contacts = buildContacts(c)
+    out.whatsapp = whatsappLink(clean(c.phone))
+    out.replyTime = pick(c.replyTime, '')
+  }
+  return out
+}
+
+export function useSiteContent() {
+  const sb = useSupabase()
+  const { data, refresh } = useAsyncData<SettingRow[] | null>(
+    'site-settings',
+    async () => {
+      try {
+        const { data: rows, error } = await sb.from('site_settings').select('key,value')
+        return error ? null : (rows as SettingRow[])
+      } catch (e) {
+        console.warn('No pude leer los textos de la base, uso los de ejemplo.', e)
+        return null
+      }
+    },
+    { default: () => null }
+  )
+  onNuxtReady(() => { refresh() })
+  return computed(() => mergeSite(data.value))
 }
 
 // ---------- Videos desde Supabase ----------

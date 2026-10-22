@@ -1,5 +1,5 @@
 // Cloudflare Pages Function. Recibe un archivo del panel y lo guarda en el bucket de R2.
-// POST /api/upload?kind=video|preview|poster&name=archivo.mp4
+// POST /api/upload?kind=video|preview|poster|photo&name=archivo.mp4
 // Solo deja pasar a administradores de Supabase (tabla public.admins).
 //
 // Configuración en Cloudflare Pages (Settings > Bindings):
@@ -54,11 +54,12 @@ export const onRequestPost = async ({ request, env }: Ctx): Promise<Response> =>
   // 3. qué archivo es
   const url = new URL(request.url)
   const kind = url.searchParams.get('kind') || ''
-  if (!['video', 'preview', 'poster'].includes(kind)) return json({ error: 'Tipo de archivo no válido.' }, 400)
+  if (!['video', 'preview', 'poster', 'photo'].includes(kind)) return json({ error: 'Tipo de archivo no válido.' }, 400)
   const type = (request.headers.get('content-type') || '').split(';')[0]!.trim().toLowerCase()
-  const ext = (kind === 'poster' ? IMAGE_TYPES : VIDEO_TYPES)[type]
+  const isImage = kind === 'poster' || kind === 'photo'
+  const ext = (isImage ? IMAGE_TYPES : VIDEO_TYPES)[type]
   if (!ext) {
-    return json({ error: kind === 'poster' ? 'La portada debe ser una imagen JPG, PNG o WebP.' : 'El video debe ser MP4, MOV o WebM.' }, 415)
+    return json({ error: isImage ? 'La imagen debe ser JPG, PNG o WebP.' : 'El video debe ser MP4, MOV o WebM.' }, 415)
   }
   const size = Number(request.headers.get('content-length') || 0)
   if (!size || !request.body) return json({ error: 'El archivo llegó vacío.' }, 400)
@@ -66,7 +67,7 @@ export const onRequestPost = async ({ request, env }: Ctx): Promise<Response> =>
 
   // 4. guardar con un nombre único
   const d = new Date()
-  const folder = kind === 'poster' ? 'posters' : 'videos'
+  const folder = kind === 'photo' ? 'photos' : kind === 'poster' ? 'posters' : 'videos'
   const rand = crypto.randomUUID().slice(0, 8)
   const key = `${folder}/${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}/${slug(url.searchParams.get('name') || 'archivo')}-${rand}.${ext}`
   try {

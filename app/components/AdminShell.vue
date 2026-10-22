@@ -1,8 +1,15 @@
 <script setup lang="ts">
 import '~/assets/css/admin.css'
 
-defineProps<{ active?: 'videos' }>()
+defineProps<{ active?: 'videos' | 'numeros' | 'sobre-mi' | 'servicios' | 'contacto' }>()
 const { signOut } = useAdmin()
+const links = [
+  { key: 'videos', to: '/admin', label: 'Videos' },
+  { key: 'numeros', to: '/admin/numeros', label: 'Números' },
+  { key: 'sobre-mi', to: '/admin/sobre-mi', label: 'Sobre mí' },
+  { key: 'servicios', to: '/admin/servicios', label: 'Servicios' },
+  { key: 'contacto', to: '/admin/contacto', label: 'Contacto' }
+]
 async function out() {
   await signOut()
   await navigateTo('/admin')
@@ -15,10 +22,13 @@ async function out() {
       <div>
         <div class="adm-brand"><b>Sofía Ortiz</b><span>Panel de mi web</span></div>
         <nav class="adm-nav" aria-label="Secciones del panel">
-          <NuxtLink to="/admin" :class="{ on: active === 'videos' }" :aria-current="active === 'videos' ? 'page' : undefined">Videos</NuxtLink>
-          <button type="button" disabled>Números<small>pronto</small></button>
-          <button type="button" disabled>Sobre mí<small>pronto</small></button>
-          <button type="button" disabled>Contacto<small>pronto</small></button>
+          <NuxtLink
+            v-for="l in links"
+            :key="l.to"
+            :to="l.to"
+            :class="{ on: active === l.key }"
+            :aria-current="active === l.key ? 'page' : undefined"
+          >{{ l.label }}</NuxtLink>
         </nav>
       </div>
       <div class="adm-nav">

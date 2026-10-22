@@ -32,6 +32,6 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    prerender: { crawlLinks: true, routes: ['/', '/admin', '/admin/video'] }
+    prerender: { crawlLinks: true, routes: ['/', '/admin', '/admin/video', '/admin/numeros', '/admin/sobre-mi', '/admin/servicios', '/admin/contacto'] }
   }
 })

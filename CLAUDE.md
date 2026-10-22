@@ -68,3 +68,4 @@ All site content lives in one file. There are two exports:
 - Los videos nuevos no están pre-renderizados: la página `/trabajo/[id]` pide la lista al navegador si no encuentra el id.
 - La tipografía (Bricolage Grotesque + Instrument Sans) y el verde oliva se mantienen. Ver README.
 - Subida de archivos: `app/components/FileUpload.vue` envía a `functions/api/upload.ts` (Cloudflare Pages Function con binding R2 `VIDEOS`). Ver README.
+- Textos del sitio editables: `/admin/numeros`, `/admin/sobre-mi`, `/admin/servicios`, `/admin/contacto` guardan una fila cada una en `site_settings` (keys `numbers`, `about`, `services`, `contact`). `useSiteContent()` en `useSite.ts` las mezcla sobre los textos de ejemplo de `site`. La foto sube con `FileUpload kind="photo"` (carpeta `photos/` en R2).
