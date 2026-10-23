@@ -1,0 +1,21 @@
+# Supabase pausa los proyectos gratis si pasan 7 días sin movimiento.
+# Esto le hace una consulta chiquita cada 3 días para que no se pause aunque la web tenga pocas visitas.
+# La clave es la publishable de Supabase: es pública por diseño (la misma que usa la web).
+name: Mantener Supabase despierto
+
+on:
+  schedule:
+    - cron: '17 13 */3 * *' # 08:17 hora de Lima, cada 3 días
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar los videos publicados
+        run: |
+          code=$(curl -sS -o /dev/null -w '%{http_code}' \
+            -H "apikey: sb_publishable_tiNAnt3wrwHY65bV--ecsw_yCTbGzgK" \
+            "https://klsqycktkhnihuprprzu.supabase.co/rest/v1/works?select=id&limit=1")
+          echo "Supabase respondió $code"
+          test "$code" = "200"
