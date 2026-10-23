@@ -32,6 +32,7 @@ export default defineNuxtConfig({
     }
   },
   nitro: {
-    prerender: { crawlLinks: true, routes: ['/', '/admin', '/admin/video', '/admin/numeros', '/admin/sobre-mi', '/admin/servicios', '/admin/contacto'] }
+    // failOnError false: si una página no se puede armar, el sitio igual se publica (esa ruta carga en el navegador)
+    prerender: { crawlLinks: true, failOnError: false, routes: ['/', '/admin', '/admin/video', '/admin/numeros', '/admin/sobre-mi', '/admin/servicios', '/admin/contacto'] }
   }
 })

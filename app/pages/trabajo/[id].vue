@@ -4,8 +4,9 @@ const { all, refresh } = useWorks()
 
 const idx = computed(() => all.value.findIndex((w) => w.id === route.params.id))
 const work = computed(() => all.value[idx.value])
-// un video recién subido puede no estar en la lista con la que salió el sitio; se pide una vez antes de dar error
-if (!work.value && import.meta.client) await refresh()
+// la lista llega de la base; se espera antes de decidir que el video no existe (también al armar el sitio).
+// Un video recién subido puede no estar en la lista con la que salió el sitio, por eso se pide una vez más.
+if (!work.value) await refresh()
 if (!work.value) {
   throw createError({ statusCode: 404, statusMessage: 'No encontré ese video', fatal: true })
 }
