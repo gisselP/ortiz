@@ -83,11 +83,11 @@ onBeforeUnmount(() => {
       <span v-if="featured" class="big"><Icon name="play" :size="34" /></span>
       <span v-if="featured" class="dur">Mi reel · 0:45</span>
       <span v-else class="play"><Icon name="play" :size="14" />Reproducir</span>
+      <span v-if="caption" class="cap">
+        <span class="cn">{{ work.client }}</span>
+        <span class="cr">{{ work.rubro }}</span>
+      </span>
       <span class="bar" aria-hidden="true" :style="{ width: progress + '%' }" />
-    </span>
-    <span v-if="caption" class="cap">
-      <span class="cn">{{ work.client }}</span>
-      <span class="cr">{{ work.rubro }}</span>
     </span>
   </NuxtLink>
 </template>
