@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Work } from '~/composables/useSite'
 
-const props = defineProps<{ work: Work; ratio?: string; caption?: boolean; featured?: boolean }>()
+// caption: Vue convierte un booleano que no se pasa en false, por eso el valor por defecto va explícito
+const props = withDefaults(defineProps<{ work: Work; ratio?: string; caption?: boolean; featured?: boolean }>(), { caption: true })
 
 const video = ref<HTMLVideoElement | null>(null)
 const root = ref<any>(null)
@@ -84,7 +85,7 @@ onBeforeUnmount(() => {
       <span v-else class="play"><Icon name="play" :size="14" />Reproducir</span>
       <span class="bar" aria-hidden="true" :style="{ width: progress + '%' }" />
     </span>
-    <span v-if="caption !== false" class="cap">
+    <span v-if="caption" class="cap">
       <span class="cn">{{ work.client }}</span>
       <span class="cr">{{ work.rubro }}</span>
     </span>
